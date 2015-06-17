@@ -23,10 +23,36 @@
 }
 
 #searchbutton {
+  margin-right: 10px;
+}
 
+#filters li {
+  display: inline-block;
+  padding: 5px;
+}
+
+#footerbar {
+  padding: 0 20px 5px;
+  border-top: 1px solid lightgrey;
+  max-width: 1200px;
 }
 
 .footer-logo {
   height: 15px;
   margin-top: -2px;
+}
+
+
+/*bootstrap overrides*/
+
+.container {
+  max-width: 1200px;
+  /*background-color: red;*/
+}
+
+/*.navbar-default,*/
+.navbar-fixed-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: orange;
 }

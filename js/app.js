@@ -10,7 +10,13 @@ $(function(){
     e.preventDefault;
     var address = $('#address').val();
     showAddressOnMap(address);
-    getPlacesOnMap(address);
+    getPlacesOnMap(address,"");
+  });
+
+  $('input:radio[name="filter"]').change(function() {
+      var address = $('#address').val();
+      var filter = $(this).val();
+      getPlacesOnMap(address,filter.split());
   });
 
 ////////////////////////////////////////////////////////////
@@ -36,7 +42,7 @@ $(function(){
 ////////////////////////////////////////////////////////////
 
   // shows places around address with markers and infowindow
-  function getPlacesOnMap(address) {
+  function getPlacesOnMap(address, filter) {
     geocoder = new google.maps.Geocoder();
     geocoder.geocode( {'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
@@ -44,14 +50,14 @@ $(function(){
         var startLocation = results[0].geometry.location;
         map = new google.maps.Map(document.getElementById('map-canvas'), {
           center: startLocation,
-          zoom: 12 // higher number zooms in
+          zoom: 15 // higher number zooms in
         });
         // map.setCenter(startLocation);
 
         var request = {
           location: startLocation,
           radius: 500,
-          types: ['store']
+          types: filter // ['lodging','restaurant','stores']
         };
 
         infowindow = new google.maps.InfoWindow();
