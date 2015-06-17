@@ -1,0 +1,32 @@
+ html, body {
+  height: 100%;
+  margin: 0px;
+  padding: 0px
+}
+
+#main-area {
+  height: 400px;
+}
+
+#map-canvas {
+  height: 100%;
+}
+
+#searchbar {
+  margin-top: -5px;
+}
+
+#address {
+  margin-right: 10px;
+  max-width: 300px;
+  background-color: lightblue;
+}
+
+#searchbutton {
+
+}
+
+.footer-logo {
+  height: 15px;
+  margin-top: -2px;
+}
