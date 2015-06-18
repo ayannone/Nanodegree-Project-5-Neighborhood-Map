@@ -1,11 +1,20 @@
  html, body {
+  /*width: 1000px;*/
   height: 100%;
-  margin: 0px;
-  padding: 0px
+  margin: 0 auto;
+  padding: 0px;
+}
+
+body {
+  background-image: url("img/bg.jpg");
+  /*background-color: red;*/
 }
 
 #main-area {
+  width: 100%;
   height: 400px;
+  padding: 0;
+  margin: 0;
 }
 
 #map-canvas {
@@ -31,6 +40,36 @@
   padding: 5px;
 }
 
+#places-list {
+  height: 100%;
+  background-color: lightgrey;
+}
+
+#info-area {
+  width: 100%;
+  /*height: 400px;*/
+  padding: 0;
+  margin: 0;
+}
+
+.info-container {
+
+}
+
+#info-container-1 {
+  background-color: lightyellow;
+}
+
+#info-container-2 {
+  /*padding: 10px; */
+  /*background-color: rgba(255,255,255,0.7);*/
+  background-color: lightgreen;
+}
+
+#info-container-3 {
+  background-color: lightblue;
+}
+
 #footerbar {
   padding: 0 20px 5px;
   border-top: 1px solid lightgrey;
@@ -43,16 +82,21 @@
 }
 
 
-/*bootstrap overrides*/
+/************     bootstrap overrides     *************/
 
 .container {
-  max-width: 1200px;
-  /*background-color: red;*/
+  /*max-width: 1200px;*/
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  /*background-color: orange;*/
 }
 
-/*.navbar-default,*/
-.navbar-fixed-bottom {
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: orange;
+.nav {
+
+}
+
+.navbar-default {
+  border-radius: 0;
+  /*background-color: orange;*/
 }
