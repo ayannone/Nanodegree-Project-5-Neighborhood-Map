@@ -211,6 +211,7 @@ $(function(){
 
 function loadFlickrData(address) {
     var $flickrElem = $('#flickr-images');
+    $flickrElem.text("");
     var $imgLoader = '<img id="loader" src="img/floating-rays-128.gif" alt="Image Loader" >';
     $flickrElem.append($imgLoader);
     var apiKey = '840f99c1773c97cda82934bbd585ba9a';
@@ -218,7 +219,7 @@ function loadFlickrData(address) {
     // var flickrUrl = "https://api.flickr.com/services/rest/?&amp;method=flickr.photos.search&amp;api_key=840f99c1773c97cda82934bbd585ba9a&amp;woe_id=656958&amp;format=json";
     // var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fe55c54bf73041bb22103a594eefe684&woe_id=656958&format=json&nojsoncallback=1&auth_token=72157654727704541-14efea98aadccf80&api_sig=1a5d8ed46e73a054fde0855813c637b4";
     // var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fe55c54bf73041bb22103a594eefe684&text="+address+"&format=json&nojsoncallback=1&auth_token=72157654727704541-14efea98aadccf80&api_sig=f2183ba703ef3f7821be76964995a3bf";
-    var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fe55c54bf73041bb22103a594eefe684&text="+address+"&format=json&nojsoncallback=1";
+    var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fe55c54bf73041bb22103a594eefe684&text="+address+"&sort=relevance&format=json&nojsoncallback=1";
     var flickrRequestTimeout = setTimeout(function(){
         $flickrElem.text("failed to get Flickr images");
     }, 8000);
@@ -276,6 +277,7 @@ function loadFlickrData(address) {
 
   function loadWikiData(address) {
     var $wikiElem = $('#wikipedia-links');
+    $wikiElem.text("");
     // $wikiElem = "";
     // var address = $('#address').val();
     var wikiUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&callback=?&search="+address;
