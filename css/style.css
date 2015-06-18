@@ -1,12 +1,12 @@
  html, body {
-  /*width: 1000px;*/
+  width: 1000px;
   height: 100%;
   margin: 0 auto;
   padding: 0px;
 }
 
 body {
-  background-image: url("img/bg.jpg");
+  background-image: url("../img/bg.jpg");
   /*background-color: red;*/
 }
 
@@ -52,6 +52,7 @@ body {
   margin: 0;
 }
 
+/********************************************/
 .info-container {
 
 }
@@ -70,10 +71,43 @@ body {
   background-color: lightblue;
 }
 
-#footerbar {
+#info-container-4 {
+  background-color: white;
+}
+
+#flickr-images {
+
+}
+
+.img-container {
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  margin: 5px;
+  padding: 5px;
+  text-align:center;
+  background-color: lightgrey;
+}
+
+.img-container img {
+  width: 100%;
+}
+
+#loader {
+
+}
+
+/********************************************/
+/*#footerbar {
   padding: 0 20px 5px;
   border-top: 1px solid lightgrey;
   max-width: 1200px;
+}*/
+
+footer {
+  height: 200px;
+  background-color: red;
+  /*margin-bottom: 0;*/
 }
 
 .footer-logo {

@@ -6,14 +6,25 @@ $(function(){
 
 ////////////////////////////////////////////////////////////
 
-  var searchButton = $('#searchbutton').on('click', function(e){
+  // var searchButton = $('#searchbutton').on('click', function(e){
+  $('#searchbutton').on('click', function(e){
+    getAddressAllData(e);
+  });
+
+  $('#address').keypress(function(e){
+    if (e.which == 13) {
+      getAddressAllData(e);
+    }
+  });
+
+  function getAddressAllData(e) {
     e.preventDefault;
     var address = $('#address').val();
     showAddressOnMap(address);
     getPlacesOnMap(address,"");
     loadWikiData(address);
     loadFlickrData(address)
-  });
+  };
 
   $('input:radio[name="filter"]').change(function() {
       var address = $('#address').val();
@@ -240,7 +251,7 @@ function loadFlickrData(address) {
             // var url = 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg'
             var url = 'http://farm' + farm_id + '.static.flickr.com/' + server_id + '/' + photo_id + '_' + secret + '_m.jpg'
 
-            var flickrImageItem = '<div class="pull-left" style="max-width:100px;"><a href="'+url+'" target="_blank"><img src="'+url+'"></a></div>';
+            var flickrImageItem = '<div class="pull-left img-container"><a href="'+url+'" target="_blank"><img src="'+url+'"></a></div>';
             $flickrElem.append(flickrImageItem);
           };
           clearTimeout(flickrRequestTimeout);
