@@ -227,7 +227,7 @@ $(function(){
           //   var oauth = OAuth({
           //     consumer: {
           //       public: 'pCeLmJ5VXhXoN3tAu6GWEahu8',
-          //       secret: '6ZEzRlRD3iCxBdALFyOTEedhbFL1TunjFVoSEV5QkvzMzcYrbp'
+          //       secret: 'xxxxxxxxxxxxxxxxxxxxxxxxx'
           //     },
           //     signature_method: 'HMAC-SHA1'
           //   });
@@ -247,7 +247,7 @@ $(function(){
 
           //   var token = {
           //     public: '382563042-8z3jheUgy1JjMlikoMn9kbhe1zBooITBw9vSkHQt',
-          //     secret: 'Zv40VzGz9E1OKojhlXBEJqeT3w8yQwZH4u4EPSHSknL38'
+          //     secret: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
           //   };
 
           //   // Call a request
@@ -288,11 +288,11 @@ $(function(){
       // Update with your auth tokens.
       //
       consumerKey: "6elNSWaVZM9nC76VherCWA",
-      consumerSecret: "HfSD_E8RG-FGJb6Z2zJJdsCnYXo",
+      consumerSecret: "xxxxxxxxxxxxxxxxxxxxxxxxx",
       accessToken: "sYRyIBg8DOU7iID93eLUhLtEjS8J1WpJ",
       // This example is a proof of concept, for how to use the Yelp v2 API with javascript.
       // You wouldn't actually want to expose your access token secret like this in a real application.
-      accessTokenSecret: "y4h0hIdiBdFZ2RsL4AWKpUFm2ak",
+      accessTokenSecret: "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
       serviceProvider: {
         signatureMethod: "HMAC-SHA1"
       }
