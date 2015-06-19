@@ -76,6 +76,23 @@ body {
   background-color: white;
 }
 
+#info-container-5 {
+  background-color: white;
+}
+
+#yelp-reviews {
+  list-style-type: none;
+}
+
+#yelp-reviews li {
+  display: inline-block;
+  width: 150px;
+  margin: 5px;
+  padding: 5px;
+  text-align:center;
+  border: 1px solid lightgrey;
+}
+
 #flickr-images {
 
 }

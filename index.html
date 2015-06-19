@@ -82,9 +82,9 @@
         </div>
 
         <div id="info-container-2" class="info-container col-sm-4">
-          <h3>Relevant Yelp Reviews</h3>
-          <ul>
-            List of Yelp reviews here!
+          <h3>Foursquare Events</h3>
+          <ul id="foursquare-events">
+            Whats going on in the Neighborhood!
           </ul>
         </div>
 
@@ -96,6 +96,13 @@
         </div>
 
         <div id="info-container-4" class="info-container col-sm-12">
+          <h3>Relevant Yelp Reviews</h3>
+          <ul id="yelp-reviews">
+            List of Yelp reviews here!
+          </ul>
+        </div>
+
+        <div id="info-container-5" class="info-container col-sm-12">
           <h3>Flickr Pictures</h3>
           <div id="flickr-images">
             <p>List of images from Flickr here!</p>
@@ -128,16 +135,17 @@
     <script src="js/lib/knockout-3.3.0.js"></script>
     <!-- Adding an interactive Google Map -->
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
-<!-- <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script> -->
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script> -->
 
 
-    <!-- sha1 -->
-    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha1.js"></script>
-    <!-- sha256 -->
-    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha256.js"></script>
+    <!-- Not using this at the moment -->
+    <!-- <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha1.js"></script>
+         <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha256.js"></script>
+         <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+         <script src="js/lib/oauth-1.0a.js"></script> -->
 
-    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
-    <script src="js/lib/oauth-1.0a.js"></script>
+    <script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/oauth.js"></script>
+    <script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/sha1.js"></script>
 
     <script src="js/app.js"></script>
   </body>

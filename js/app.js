@@ -22,9 +22,10 @@ $(function(){
     var address = $('#address').val();
     showAddressOnMap(address);
     getPlacesOnMap(address,"");
+    getTwitterTweets(address);
+    getYelpReviews(address);
     getWikiLinks(address);
     getFlickrImages(address);
-    getTwitterTweets(address);
   };
 
   $('input:radio[name="filter"]').change(function() {
@@ -219,66 +220,137 @@ $(function(){
   // https://api.twitter.com/1.1/search/tweets.json?q=%23freebandnames&since_id=24012619984051000&max_id=250126199840518145&result_type=mixed&count=4
   // https://api.twitter.com/1.1/search/tweets.json?q=%23freebandnames&since_id=24012619984051000&max_id=250126199840518145&result_type=mixed&count=4
 
-  function getTwitterTweets(address) {
-    var $twitterElem = $('#twitter-tweets');
+          function getTwitterTweets(address) {
+          //   var $twitterElem = $('#twitter-tweets');
 
-    // initialize
-    var oauth = OAuth({
-      consumer: {
-        public: 'pCeLmJ5VXhXoN3tAu6GWEahu8',
-        secret: '6ZEzRlRD3iCxBdALFyOTEedhbFL1TunjFVoSEV5QkvzMzcYrbp'
-      },
-      signature_method: 'HMAC-SHA1'
-    });
+          //   // initialize
+          //   var oauth = OAuth({
+          //     consumer: {
+          //       public: 'pCeLmJ5VXhXoN3tAu6GWEahu8',
+          //       secret: '6ZEzRlRD3iCxBdALFyOTEedhbFL1TunjFVoSEV5QkvzMzcYrbp'
+          //     },
+          //     signature_method: 'HMAC-SHA1'
+          //   });
 
-    // Your request data
+          //   // Your request data
 
-    var request_data = {
-      url: 'https://api.twitter.com/1.1/search/tweets.json?q=hamburg&src=typd&vertical=default&f=tweets',
-      method: 'GET'
-      // method: 'POST',
-      // data: {
-      //     status: 'Hello Ladies + Gentlemen, a signed OAuth request!'
-      // }
-    };
+          //   var request_data = {
+          //     url: 'https://api.twitter.com/1.1/search/tweets.json?q=hamburg&src=typd&vertical=default&f=tweets',
+          //     method: 'GET'
+          //     // method: 'POST',
+          //     // data: {
+          //     //     status: 'Hello Ladies + Gentlemen, a signed OAuth request!'
+          //     // }
+          //   };
 
-    // Your token (optional for some requests)
+          //   // Your token (optional for some requests)
 
-    var token = {
-      public: '382563042-8z3jheUgy1JjMlikoMn9kbhe1zBooITBw9vSkHQt',
-      secret: 'Zv40VzGz9E1OKojhlXBEJqeT3w8yQwZH4u4EPSHSknL38'
-    };
+          //   var token = {
+          //     public: '382563042-8z3jheUgy1JjMlikoMn9kbhe1zBooITBw9vSkHQt',
+          //     secret: 'Zv40VzGz9E1OKojhlXBEJqeT3w8yQwZH4u4EPSHSknL38'
+          //   };
 
-    // Call a request
+          //   // Call a request
 
-    var twitterRequestTimeout = setTimeout(function(){
-      $twitterElem.text("failed to get Twitter Tweets");
-    }, 8000);
+          //   var twitterRequestTimeout = setTimeout(function(){
+          //     $twitterElem.text("failed to get Twitter Tweets");
+          //   }, 8000);
 
 
-    $.ajax({
-        url: request_data.url,
-        type: request_data.method,
-        dataType: "jsonp",
-        data: oauth.authorize(request_data, token)
-    }).done(function(data) {
-      console.log(data);
-      clearTimeout(twitterRequestTimeout);
-        //process your data here
-    });
-  };
+          //   $.ajax({
+          //       url: request_data.url,
+          //       type: request_data.method,
+          //       dataType: "jsonp",
+          //       data: oauth.authorize(request_data, token)
+          //   }).done(function(data) {
+          //     console.log(data);
+          //     clearTimeout(twitterRequestTimeout);
+          //       //process your data here
+          //   });
+          };
 
 
   //  Yelp
   // -------------------------------------------------------------
 
+  function getYelpReviews(address) {
+
+    var $yelpElem = $('#yelp-reviews');
+    $yelpElem.text("");
+
+    var yelpRequestTimeout = setTimeout(function(){
+        $yelpElem.text("failed to get Yelp Reviews");
+    }, 8000);
 
 
+    var auth = {
+      //
+      // Update with your auth tokens.
+      //
+      consumerKey: "6elNSWaVZM9nC76VherCWA",
+      consumerSecret: "HfSD_E8RG-FGJb6Z2zJJdsCnYXo",
+      accessToken: "sYRyIBg8DOU7iID93eLUhLtEjS8J1WpJ",
+      // This example is a proof of concept, for how to use the Yelp v2 API with javascript.
+      // You wouldn't actually want to expose your access token secret like this in a real application.
+      accessTokenSecret: "y4h0hIdiBdFZ2RsL4AWKpUFm2ak",
+      serviceProvider: {
+        signatureMethod: "HMAC-SHA1"
+      }
+    };
+    var terms = 'food';
+    var near = address;
+    var accessor = {
+      consumerSecret: auth.consumerSecret,
+      tokenSecret: auth.accessTokenSecret
+    };
 
+    parameters = [];
+    parameters.push(['term', terms]);
+    parameters.push(['location', near]);
+    parameters.push(['callback', 'cb']);
+    parameters.push(['oauth_consumer_key', auth.consumerKey]);
+    parameters.push(['oauth_token', auth.accessToken]);
+    parameters.push(['oauth_signature_method', 'HMAC-SHA1']);
 
+    var message = {
+      'action': 'https://api.yelp.com/v2/search',
+      'method': 'GET',
+      'parameters': parameters
+    };
 
+    OAuth.setTimestampAndNonce(message);
+    OAuth.SignatureMethod.sign(message, accessor);
+    var parameterMap = OAuth.getParameterMap(message.parameters);
+    parameterMap.oauth_signature = OAuth.percentEncode(parameterMap.oauth_signature)
+    console.log(parameterMap);
 
+    $.ajax({
+      url: message.action,
+      data: parameterMap,
+      cache: true,
+      dataType: 'jsonp',
+      jsonpCallback: 'cb',
+      success: function(data) {
+        console.log(data);
+        $.each(data.businesses,function(i,business){
+          var yelp_info = "";
+          yelp_info += "<li>";
+          yelp_info += "<img src=\""+ business.image_url + "\"><br>";
+          yelp_info += business.name + "<br>";
+          yelp_info += "Rating: " + business.rating + "<br>";
+          yelp_info += "<img src=\""+ business.rating_img_url + "\"><br>";
+          yelp_info += "Reviews: " + business.review_count + "<br>";
+          // yelp_info += "Address: " + business.location.city + "<br>";
+          // yelp_info += "Address: " + business.location.display_address + "<br>";
+          yelp_info += "<a href=\"" + business.url + "\">read more</a><br>";
+          yelp_info += "</li>";
+          $yelpElem.append(yelp_info);
+        });
+        clearTimeout(yelpRequestTimeout);
+      }
+    })
 
+  };
 
 
   //  Wikipedia
@@ -429,19 +501,6 @@ $(function(){
     });
 
   };
-
-
-// apiurl    = "https://api.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=ca370d51a054836007519a00ff4ce59e&per_page=10&format=json&nojsoncallback=1";
-// flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+apiKey+"&text="+address+"&sort=relevance&per_page=10&format=json&nojsoncallback=1";
-
-
-
-
-
-
-
-
-
 
 
 }) // This is the end...
