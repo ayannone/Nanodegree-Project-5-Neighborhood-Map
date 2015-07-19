@@ -4,7 +4,23 @@ $(function(){
   var geocoder;
   var infowindow;
 
+
+
+  // Bootstrap Thumbnail Slider
+  $('#flickrCarousel').carousel({
+    interval: 10000
+  });
+  $('#yelpCarousel').carousel({
+    interval: 10000
+  });
+
+
+
 ////////////////////////////////////////////////////////////
+
+  $('#find-me').on('click', function(e){
+    showCurrentPosition();
+  });
 
   // var searchButton = $('#searchbutton').on('click', function(e){
   $('#searchbutton').on('click', function(e){
@@ -22,9 +38,8 @@ $(function(){
     var address = $('#address').val();
     showAddressOnMap(address);
     getPlacesOnMap(address,"");
-    getTwitterTweets(address);
     getYelpReviews(address);
-    getWikiLinks(address);
+    // getFoursquarePlaces(address)
     getFlickrImages(address);
   };
 
@@ -33,6 +48,28 @@ $(function(){
       var filter = $(this).val();
       getPlacesOnMap(address,filter.split());
   });
+
+  // $('li.filter-by').on('click', function() {
+  //   alert($(this).attributes.value.value);
+  //     var address = $('#address').val();
+  //     var filter = $(this).val();
+  //     getPlacesOnMap(address, filter);
+  // });
+
+
+  // $('#filterByList').on('click', function(e) {
+  //   // if ('filter-by' != e.target.class ) return;
+  //   alert(e.target.innerText);
+  //   alert($(e.target).text());
+  //   alert($(this).text());
+  // });
+
+  $('#filterByList li').on('click', function(){
+    // alert($(this).attr('value'));
+    var address = $('#address').val();
+    var filter = $(this).attr('value');
+    getPlacesOnMap(address,filter.split());
+  })
 
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
@@ -118,6 +155,10 @@ $(function(){
   // prompted by your browser. If you see a blank space instead of the map, this
   // is probably because you have denied permission for location sharing.
   function initialize() {
+    showCurrentPosition();
+  };
+
+  function showCurrentPosition() {
 
     var mapOptions = {
       zoom: 12
@@ -180,94 +221,86 @@ $(function(){
 
 
 
-  //  Twitter
+
+  //  Foursquare
   // -------------------------------------------------------------
-  // How to build a query
-  // The best way to build a query and test if it’s valid and will return matched Tweets is to first try it at
-  // twitter.com/search. As you get a satisfactory result set, the URL loaded in the browser will contain the
-  // proper query syntax that can be reused in the API endpoint.
+
+  // In the HTTP request, you need to pass in your client ID, client secret,
+  // a version parameter, and any other parameters that the endpoint requires:
+  // https://api.foursquare.com/v2/venues/search
+  // ?client_id=CLIENT_ID
+  // &client_secret=CLIENT_SECRET
+  // &v=20130815
+  // &ll=40.7,-74
+  // &query=sushi
+
+   // https://api.foursquare.com/v2/venues/explore?near=chicago;
+
+  function getFoursquarePlaces(address) {
+    var baseUrl = "https://api.foursquare.com/v2/venues/explore";
+    var client_id = "5CF54NJC4GAZTBLXTT4RNIFIZ300VASS2UBFEXT5BZ5FE1UN";
+    var client_secret = "RZEDR3PAPT21NWRJK3LOIDL3LRVVMGEOBI0K3JFUNY1PEAK0";
+    var version = '20150619';
+
+    var $foursquareElem = $('#foursquare-places');
+    $foursquareElem.text("");
+
+    var foursquareUrl = baseUrl + "?client_id=" + client_id + "&client_secret=" + client_secret + "&v=" + version + "&venuePhotos=1&near=" + address;
 
 
-  // Here’s an example:
+    var foursquareRequestTimeout = setTimeout(function(){
+        $foursquareElem.text("failed to get Foursquare places");
+    }, 8000);
 
-  // but before we can actually connect to the API endpoint (btw: always! via https), we need to create an application
-  // to get a consumer key and secret for authentication, here https://apps.twitter.com/app/new
+    $.ajax({
+        url: foursquareUrl,
+        dataType: "json",
+        success: function(data) {
+            // console.log(data.response.groups[0].items);
+            var places = data.response.groups[0].items;
+            for (var i=0; i<places.length; i++) {
 
-  // 'oauth_access_token' => Access token
-  // 'oauth_access_token_secret' => Access token secret
-  // 'consumer_key' => API key
-  // 'consumer_secret' => API secret
+                // Make another API call to get Venue details
+                // https://api.foursquare.com/v2/venues/VENUE_ID
+                var baseVenueUrl = "https://api.foursquare.com/v2/venues/";
+                var foursquareVenueUrl = baseVenueUrl + places[i].venue.id + "?client_id=" + client_id + "&client_secret=" + client_secret + "&v=" + version ;
 
-  // and do this 'Issuing application-only requests' => https://dev.twitter.com/oauth/application-only
+                $.ajax({
+                  url: foursquareVenueUrl,
+                  dataType: "json",
+                  success: function(data) {
+                    console.log(data.response.venue);
+                    var venue = data.response.venue;
 
-  // 1. We want to search for tweets referencing @twitterapi account. First, we run the search on twitter.com/search
-  // 2. Check and copy the URL loaded. In this case, we got: https://twitter.com/search?q=%40twitterapi
-  // 3. Replace “https://twitter.com/search” with “https://api.twitter.com/1.1/search/tweets.json” and you will get:
-  //    https://api.twitter.com/1.1/search/tweets.json?q=%40twitterapi
-  // 4. Execute this URL to do the search in the API
+                    var name = venue.name;
+                    var cat_name = venue.categories[0].name;
+                    var address = venue.location.address;
+                    var rating = venue.rating;
+                    var ratingColor = "#"+venue.ratingColor;
+                    var price = "";
+                    if (venue.price) {
+                      tier = venue.price.tier;
+                      currency = venue.price.currency;
+                      price = Array(tier+1).join(currency) + " ";
+                    };
 
-  // https://twitter.com/search?q=%40twitterapi  ==>
-  // https://api.twitter.com/1.1/search/tweets.json?q=%40twitterapi
+                    var url = venue.url;
+                    var image_o = venue.bestPhoto.prefix + "width" + venue.bestPhoto.width + venue.bestPhoto.suffix;
+                    var image = venue.bestPhoto.prefix + "width200" + venue.bestPhoto.suffix;
 
-  // https://twitter.com/search?q=hamburg&src=typd&vertical=default&f=tweets  ==>
-  // https://api.twitter.com/1.1/search/tweets.json?q=hamburg&src=typd&vertical=default&f=tweets
+                    // ------ this is the only information I need from this ajax call ----------
+                    var urlFSQ = venue.canonicalUrl;
 
+                    var foursquareListItem = "<li><a href=\"" + image_o + "\" target=\"_blank\"><img src=\"" + image + "\"></a><br><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "<span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+                    $foursquareElem.append(foursquareListItem);
+                  }
+                });
 
-  // Please note that now API v1.1 requires that the request must be authenticated, check Authentication & Authorization
-  // documentation for more details on how to do it. Also note that the search results at twitter.com may return historical
-  // results while the Search API usually only serves tweets from the past week.
-
-  // https://api.twitter.com/1.1/search/tweets.json?q=%23freebandnames&since_id=24012619984051000&max_id=250126199840518145&result_type=mixed&count=4
-  // https://api.twitter.com/1.1/search/tweets.json?q=%23freebandnames&since_id=24012619984051000&max_id=250126199840518145&result_type=mixed&count=4
-
-          function getTwitterTweets(address) {
-          //   var $twitterElem = $('#twitter-tweets');
-
-          //   // initialize
-          //   var oauth = OAuth({
-          //     consumer: {
-          //       public: 'pCeLmJ5VXhXoN3tAu6GWEahu8',
-          //       secret: 'xxxxxxxxxxxxxxxxxxxxxxxxx'
-          //     },
-          //     signature_method: 'HMAC-SHA1'
-          //   });
-
-          //   // Your request data
-
-          //   var request_data = {
-          //     url: 'https://api.twitter.com/1.1/search/tweets.json?q=hamburg&src=typd&vertical=default&f=tweets',
-          //     method: 'GET'
-          //     // method: 'POST',
-          //     // data: {
-          //     //     status: 'Hello Ladies + Gentlemen, a signed OAuth request!'
-          //     // }
-          //   };
-
-          //   // Your token (optional for some requests)
-
-          //   var token = {
-          //     public: '382563042-8z3jheUgy1JjMlikoMn9kbhe1zBooITBw9vSkHQt',
-          //     secret: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-          //   };
-
-          //   // Call a request
-
-          //   var twitterRequestTimeout = setTimeout(function(){
-          //     $twitterElem.text("failed to get Twitter Tweets");
-          //   }, 8000);
-
-
-          //   $.ajax({
-          //       url: request_data.url,
-          //       type: request_data.method,
-          //       dataType: "jsonp",
-          //       data: oauth.authorize(request_data, token)
-          //   }).done(function(data) {
-          //     console.log(data);
-          //     clearTimeout(twitterRequestTimeout);
-          //       //process your data here
-          //   });
-          };
+            };
+            clearTimeout(foursquareRequestTimeout);
+        }
+    })
+  };
 
 
   //  Yelp
@@ -276,7 +309,7 @@ $(function(){
   function getYelpReviews(address) {
 
     var $yelpElem = $('#yelp-reviews');
-    $yelpElem.text("");
+    // $yelpElem.text("");
 
     var yelpRequestTimeout = setTimeout(function(){
         $yelpElem.text("failed to get Yelp Reviews");
@@ -288,16 +321,16 @@ $(function(){
       // Update with your auth tokens.
       //
       consumerKey: "6elNSWaVZM9nC76VherCWA",
-      consumerSecret: "xxxxxxxxxxxxxxxxxxxxxxxxx",
+      consumerSecret: "HfSD_E8RG-FGJb6Z2zJJdsCnYXo",
       accessToken: "sYRyIBg8DOU7iID93eLUhLtEjS8J1WpJ",
       // This example is a proof of concept, for how to use the Yelp v2 API with javascript.
       // You wouldn't actually want to expose your access token secret like this in a real application.
-      accessTokenSecret: "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      accessTokenSecret: "y4h0hIdiBdFZ2RsL4AWKpUFm2ak",
       serviceProvider: {
         signatureMethod: "HMAC-SHA1"
       }
     };
-    var terms = 'food';
+    var terms = ''; //'food'
     var near = address;
     var accessor = {
       consumerSecret: auth.consumerSecret,
@@ -322,7 +355,6 @@ $(function(){
     OAuth.SignatureMethod.sign(message, accessor);
     var parameterMap = OAuth.getParameterMap(message.parameters);
     parameterMap.oauth_signature = OAuth.percentEncode(parameterMap.oauth_signature)
-    console.log(parameterMap);
 
     $.ajax({
       url: message.action,
@@ -331,78 +363,42 @@ $(function(){
       dataType: 'jsonp',
       jsonpCallback: 'cb',
       success: function(data) {
-        console.log(data);
+        var $carouselInner = $('yelpCarousel .carousel-inner');
+        var divider = 4; // 4 images per row
+        var counter = 0;
+        var $carouselItemRow;
+
         $.each(data.businesses,function(i,business){
+
+          if (counter % divider == 0) {
+            var rowNum = counter / divider;
+            $carouselItemRow = $('#yelpCarouselRow'+rowNum);
+            $carouselItemRow.text("");
+          };
+
           var yelp_info = "";
-          yelp_info += "<li>";
+          yelp_info += '<div class="yelp-review">';
           yelp_info += "<img src=\""+ business.image_url + "\"><br>";
-          yelp_info += business.name + "<br>";
+          yelp_info += "<p style=\"height:20px;overflow:hidden;\">" + business.name + "</p>";
           yelp_info += "Rating: " + business.rating + "<br>";
           yelp_info += "<img src=\""+ business.rating_img_url + "\"><br>";
           yelp_info += "Reviews: " + business.review_count + "<br>";
           // yelp_info += "Address: " + business.location.city + "<br>";
           // yelp_info += "Address: " + business.location.display_address + "<br>";
-          yelp_info += "<a href=\"" + business.url + "\">read more</a><br>";
-          yelp_info += "</li>";
-          $yelpElem.append(yelp_info);
+          yelp_info += "<a href=\"" + business.url + "\" target=\"_blank\">read more on Yelp</a><br>";
+          yelp_info += "</div>";
+
+          $carouselItemRow.append(yelp_info);
+
+          counter += 1;
+
+          clearTimeout(yelpRequestTimeout);
         });
-        clearTimeout(yelpRequestTimeout);
+
       }
     })
 
   };
-
-
-  //  Wikipedia
-  // -------------------------------------------------------------
-  // load Wikipedia article
-  // Here is the jsonfm URL as an easier-to-read clickable link.
-  // api.php?action=query&titles=Main%20Page&prop=revisions&rvprop=content&format=jsonfm
-
-  // var wikiUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&callback=?&search="+city;
-  // var wikiUrl = "http://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=jsonfm&titles="+city;
-
-  // jsonp => "JSON with padding", needed to use Wikipedia API because it does not allow pure json requests from different domains
-  // jsonp is a simple way to overcome cross domain browser restrictions
-  // when using dataType 'jsonp' then we must add the parameter 'callback=?' in our URL
-  // the json will get send back wrapped in a function (a function does not fall under the cross domain browser
-  // restrictions), but the client treats the response as RAW json, so just like a normal json response
-
-  // Tutorial: http://json-jsonp-tutorial.craic.com/index.html
-
-  // JSONP wraps up a JSON response into a JavaScript function and sends that back as a Script to the
-  // browser. A script is not subject to the Same Origin Policy and when loaded into the client, the
-  // function acts just like the JSON object that it contains.
-
-  // unfortunately JSONP does not support error handling, therefore we need a workaround using a Timeout
-  // function, which we clear in case we got a successful jsonp response
-
-  function getWikiLinks(address) {
-    var $wikiElem = $('#wikipedia-links');
-    $wikiElem.text("");
-    // $wikiElem = "";
-    // var address = $('#address').val();
-    var wikiUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&callback=?&search="+address;
-
-    var wikiRequestTimeout = setTimeout(function(){
-        $wikiElem.text("failed to get Wikipedia articles");
-    }, 8000);
-
-    $.ajax({
-        url: wikiUrl,
-        dataType: "jsonp",
-        success: function(response) {
-            var articles = response[1];
-            for (var i=0; i<articles.length; i++) {
-                var url = "http://en.wikipedia.org/wiki/"+articles[i];
-                var wikiListItem = "<li><a href=\""+url+"\" target=\"_blank\">"+articles[i]+"</a></li>"
-                $wikiElem.append(wikiListItem);
-            };
-            clearTimeout(wikiRequestTimeout);
-        }
-    })
-  };
-
 
 
   //  Flickr
@@ -450,58 +446,45 @@ $(function(){
 
   function getFlickrImages(address) {
     var $flickrElem = $('#flickr-images');
-    $flickrElem.text("");
-    var $imgLoader = '<img id="loader" src="img/floating-rays-128.gif" alt="Image Loader" >';
-    $flickrElem.append($imgLoader);
+    // $flickrElem.text("");
+    // var $imgLoader = '<img id="loader" src="img/floating-rays-128.gif" alt="Image Loader" >';
+    // $flickrElem.append($imgLoader);
     var apiKey = '840f99c1773c97cda82934bbd585ba9a';
 
-    // var flickrUrl = "https://api.flickr.com/services/rest/?&amp;method=flickr.photos.search&amp;api_key=840f99c1773c97cda82934bbd585ba9a&amp;woe_id=656958&amp;format=json";
-    // var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fe55c54bf73041bb22103a594eefe684&woe_id=656958&format=json&nojsoncallback=1&auth_token=72157654727704541-14efea98aadccf80&api_sig=1a5d8ed46e73a054fde0855813c637b4";
-    // var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fe55c54bf73041bb22103a594eefe684&text="+address+"&format=json&nojsoncallback=1&auth_token=72157654727704541-14efea98aadccf80&api_sig=f2183ba703ef3f7821be76964995a3bf";
     var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+apiKey+"&text="+address+"&sort=relevance&per_page=20&format=json&nojsoncallback=1";
     var flickrRequestTimeout = setTimeout(function(){
         $flickrElem.text("failed to get Flickr images");
     }, 8000);
 
-    // $.ajax({
-    //   url: flickrUrl,
-    //   dataType: "json",
-    //   success: function(data) {
-    //       var photo = data.photos.photo; // photo array of 100 photos
-    //       for (var i=0; i<photo.length; i++) {
-    //         // var owner = photo[i].owner;
-    //         var photo_id = photo[i].id;
-    //         var farm_id = photo[i].farm;
-    //         var server_id = photo[i].server;
-    //         var secret = photo[i].secret;
-    //         var photo_title = photo[i].title;
-
-    //         // var url = 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg'
-    //         var url = 'https://farm' + farm_id + '.static.flickr.com/' + server_id + '/' + photo_id + '_' + secret + '.jpg'
-    //         var url_m = 'https://farm' + farm_id + '.static.flickr.com/' + server_id + '/' + photo_id + '_' + secret + '_m.jpg'
-    //         var flickrImageItem = '<div class="pull-left img-container"><a href="'+url+'" target="_blank"><img src="'+url_m+'"></a><p style="background-color:black;color:white;">'+photo_title+'</p></div>';
-    //         $flickrElem.append(flickrImageItem);
-    //       };
-    //       clearTimeout(flickrRequestTimeout);
-    //       $('#loader').remove();
-    //   }
-    // })
-
     $.getJSON(flickrUrl, function(json) {
+      var $carouselInner = $('flickrCarousel .carousel-inner');
+      var photosNum = json.photos.photo.length; // retrieving 20 images per page, 1 page
+      var divider = 4; // 4 images per row
+      var counter = 0;
+      var $carouselItemRow;
+
       $.each(json.photos.photo,function(i,myresult) {
-        var url   = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '.jpg';
+
+        if (counter % divider == 0) {
+          var rowNum = counter / divider;
+          $carouselItemRow = $('#flickrCarouselRow'+rowNum);
+          $carouselItemRow.text("");
+        };
+
+        var url_b   = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_b.jpg';
         var url_m = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_m.jpg';
 
-        var flickrImageItem = '<div class="pull-left img-container"><a href="'+url_m+'" target="_blank"><img src="'+url+'"></a><p style="background-color:black;color:white;">'+myresult.title+'</p></div>';
-        $flickrElem.append(flickrImageItem);
+        var $carouselItemRowImage = '<div class="col-sm-3"><a href="'+url_b+'" target="_blank" class="thumbnail"><img src="'+url_m+'" alt="' + myresult.title + '" style="max-width:100%;"></a></div>';
+        $carouselItemRow.append($carouselItemRowImage);
+
+        counter += 1;
 
         clearTimeout(flickrRequestTimeout);
-        $('#loader').remove();
       })
     });
 
   };
 
 
-}) // This is the end...
+})
 

@@ -1,5 +1,5 @@
  html, body {
-  width: 1000px;
+  max-width: 1000px;
   height: 100%;
   margin: 0 auto;
   padding: 0px;
@@ -55,46 +55,42 @@ body {
 
 /********************************************/
 .info-container {
-
-}
-
-#info-container-1 {
-  background-color: lightyellow;
-}
-
-#info-container-2 {
-  /*padding: 10px; */
-  /*background-color: rgba(255,255,255,0.7);*/
-  background-color: lightgreen;
-}
-
-#info-container-3 {
-  background-color: lightblue;
-}
-
-#info-container-4 {
   background-color: white;
 }
 
-#info-container-5 {
-  background-color: white;
-}
-
-#yelp-reviews {
+ul {
   list-style-type: none;
+  /*list-style-position: inside;*/
 }
 
-#yelp-reviews li {
+#foursquare-places li {
   display: inline-block;
-  width: 150px;
+  width: 200px;
   margin: 5px;
   padding: 5px;
   text-align:center;
   border: 1px solid lightgrey;
 }
 
-#flickr-images {
+#foursquare-places li img {
+  width: 100px;
+  /*height: 100px;*/
+}
 
+#foursquare-places li span {
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  border-radius: 100%;
+}
+
+.yelp-review {
+  display: inline-block;
+  width: 200px;
+  margin: 10px;
+  padding: 5px;
+  text-align:center;
+  border: 1px solid lightgrey;
 }
 
 .img-container {
@@ -152,3 +148,43 @@ footer {
   border-radius: 0;
   /*background-color: orange;*/
 }
+
+
+
+/********************************************/
+/* Bootstrap Thumbnail Slider*/
+/* Source: http://bootsnipp.com/snippets/featured/thumbnail-carousel*/
+
+/* Removes the default 20px margin and creates some padding space for the indicators and controls */
+.carousel {
+  margin-bottom: 0;
+  padding: 0 40px 30px 40px;
+}
+/* Reposition the controls slightly */
+.carousel-control {
+  left: -12px;
+}
+.carousel-control.right {
+  right: -12px;
+}
+/* Changes the position of the indicators */
+.carousel-indicators {
+  right: 50%;
+  top: auto;
+  bottom: 0px;
+  margin-right: -19px;
+}
+/* Changes the colour of the indicators */
+.carousel-indicators li {
+  background: #c0c0c0;
+}
+.carousel-indicators .active {
+background: #333333;
+}
+
+.thumbnail {
+  height: 150px;
+  overflow: hidden;
+}
+
+/********************************************/
