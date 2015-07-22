@@ -38,9 +38,9 @@ $(function(){
     var address = $('#address').val();
     showAddressOnMap(address);
     getPlacesOnMap(address,"");
-    getYelpReviews(address);
-    // getFoursquarePlaces(address)
-    getFlickrImages(address);
+    // getYelpReviews(address);
+    getFoursquarePlaces(address)
+    // getFlickrImages(address);
   };
 
   $('input:radio[name="filter"]').change(function() {
@@ -150,6 +150,76 @@ $(function(){
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
+// Place a marker on a map
+function placeMarkerOnMap(lat,lng) {
+  var myLatlng = new google.maps.LatLng(lat,lng);
+  var mapOptions = {
+    zoom: 15,
+    center: myLatlng
+  }
+  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+  var marker = new google.maps.Marker({
+      position: myLatlng,
+      // animation:google.maps.Animation.BOUNCE,
+      map: map,
+      title: 'Foursquare venue'
+  });
+}
+
+
+// Place multiple markers on a map
+
+function placeMarkersOnMap(markers) {
+    var map;
+    var bounds = new google.maps.LatLngBounds();
+    var mapOptions = {
+        zoom: 15,
+        mapTypeId: 'roadmap'
+    };
+
+    // Display a map on the page
+    map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+    map.setTilt(45);
+
+    // Display multiple markers on a map
+    var infoWindow = new google.maps.InfoWindow(), marker, i;
+
+    // Loop through our array of markers & place each one on the map
+    for( i = 0; i < markers.length; i++ ) {
+        var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+        bounds.extend(position);
+        marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            title: 'hello' //markers[i][0]
+        });
+
+        // Allow each marker to have an info window
+        google.maps.event.addListener(marker, 'click', (function(marker, i, content) {
+            return function() {
+                infoWindow.setContent(content);
+                infoWindow.open(map, marker);
+            }
+        })(marker, i, markers[i][0]));
+
+        // Automatically center the map fitting all markers on the screen
+        map.fitBounds(bounds);
+    }
+
+    // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+    var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+        this.setZoom(13);
+        google.maps.event.removeListener(boundsListener);
+    });
+
+}
+
+
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
+
   // Get the current position
   // Note: This requires that you consent to location sharing when
   // prompted by your browser. If you see a blank space instead of the map, this
@@ -226,7 +296,8 @@ $(function(){
   // -------------------------------------------------------------
 
   // In the HTTP request, you need to pass in your client ID, client secret,
-  // a version parameter, and any other parameters that the endpoint requires:
+  // a version parameter, and any other parameters that the endpoint requires
+  // (this is not OAuth):
   // https://api.foursquare.com/v2/venues/search
   // ?client_id=CLIENT_ID
   // &client_secret=CLIENT_SECRET
@@ -242,7 +313,7 @@ $(function(){
     var client_secret = "RZEDR3PAPT21NWRJK3LOIDL3LRVVMGEOBI0K3JFUNY1PEAK0";
     var version = '20150619';
 
-    var $foursquareElem = $('#foursquare-places');
+    var $foursquareElem = $('#places-list');
     $foursquareElem.text("");
 
     var foursquareUrl = baseUrl + "?client_id=" + client_id + "&client_secret=" + client_secret + "&v=" + version + "&venuePhotos=1&near=" + address;
@@ -250,15 +321,19 @@ $(function(){
 
     var foursquareRequestTimeout = setTimeout(function(){
         $foursquareElem.text("failed to get Foursquare places");
-    }, 8000);
+    }, 16000);
 
     $.ajax({
         url: foursquareUrl,
         dataType: "json",
         success: function(data) {
             // console.log(data.response.groups[0].items);
+            var latlngCoords = [];
+
             var places = data.response.groups[0].items;
             for (var i=0; i<places.length; i++) {
+
+                latlngCoords[i] = [places[i].venue.name, places[i].venue.location.lat, places[i].venue.location.lng];
 
                 // Make another API call to get Venue details
                 // https://api.foursquare.com/v2/venues/VENUE_ID
@@ -285,19 +360,35 @@ $(function(){
                     };
 
                     var url = venue.url;
-                    var image_o = venue.bestPhoto.prefix + "width" + venue.bestPhoto.width + venue.bestPhoto.suffix;
-                    var image = venue.bestPhoto.prefix + "width200" + venue.bestPhoto.suffix;
+
+                    // var image_o = venue.bestPhoto.prefix + "width" + venue.bestPhoto.width + venue.bestPhoto.suffix;
+                    // var image = venue.bestPhoto.prefix + "width200" + venue.bestPhoto.suffix;
 
                     // ------ this is the only information I need from this ajax call ----------
                     var urlFSQ = venue.canonicalUrl;
 
-                    var foursquareListItem = "<li><a href=\"" + image_o + "\" target=\"_blank\"><img src=\"" + image + "\"></a><br><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "<span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+                    // var foursquareListItem = "<li><a href=\"" + image_o + "\" target=\"_blank\"><img src=\"" + image + "\"></a><br><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "<span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+                    var foursquareListItem = "<li><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "<span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
                     $foursquareElem.append(foursquareListItem);
+
+
+
+                      // Make a call to Google API to place the marker on the map
+                    // placeMarkersOnMap(lat,lng);
+
+
+                    // var lat = venue.location.lat;
+                    // var lng = venue.location.lng;
+                    // latlngCoords.push([lat,lng,name]);
+
                   }
                 });
 
             };
             clearTimeout(foursquareRequestTimeout);
+            console.log("latlngCoords: " + latlngCoords);
+            placeMarkersOnMap(latlngCoords);
+
         }
     })
   };

@@ -16,6 +16,7 @@ body {
   height: 400px;
   padding: 0;
   margin: 0;
+  background-color: white;
 }
 
 #map-canvas {
@@ -44,6 +45,7 @@ body {
 #places-list {
   height: 100%;
   background-color: lightgrey;
+  overflow: scroll;
 }
 
 #info-area {
