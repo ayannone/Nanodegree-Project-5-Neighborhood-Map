@@ -1,10 +1,8 @@
 $(function(){
 
-  var map;
-  var geocoder;
-  var infowindow;
-
-
+  // var map;
+  // var geocoder;
+  // var infowindow;
 
   // Bootstrap Thumbnail Slider
   $('#flickrCarousel').carousel({
@@ -13,7 +11,6 @@ $(function(){
   $('#yelpCarousel').carousel({
     interval: 10000
   });
-
 
 
 ////////////////////////////////////////////////////////////
@@ -37,7 +34,7 @@ $(function(){
     e.preventDefault;
     var address = $('#address').val();
     showAddressOnMap(address);
-    getPlacesOnMap(address,"");
+    // getPlacesOnMap(address,"");
     // getYelpReviews(address);
     getFoursquarePlaces(address)
     // getFlickrImages(address);
@@ -292,6 +289,71 @@ function placeMarkersOnMap(markers) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  var map;
+    var bounds = new google.maps.LatLngBounds();
+    var mapOptions = {
+        zoom: 15,
+        mapTypeId: 'roadmap'
+    };
+
+  // Display a map on the page
+  map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+  // Display multiple markers on a map
+  // var infoWindow = new google.maps.InfoWindow(), marker, i;
+var infowindow = new google.maps.InfoWindow();
+
+var foursquareLocations = [];
+
+function makeMarker(lat, lng, name) {
+      // console.log("makeMarker: " + name);
+    var latlng = new google.maps.LatLng(lat,lng);
+
+    var marker = new google.maps.Marker({
+        position: latlng,
+        map: map
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent(name);
+        infowindow.open(map, marker);
+    });
+
+    foursquareLocations[name] = marker;
+
+    return marker;
+};
+
+  $("#places-list").on("click", "li a", function(){
+    console.log($(this).text());
+
+    var index = $(this).text();
+    var marker = foursquareLocations[index];
+    var position = marker.getPosition();
+    map.setCenter(position);
+
+    infowindow.setContent(index);
+    infowindow.open(map, marker);
+  })
+
+
+
   //  Foursquare
   // -------------------------------------------------------------
 
@@ -308,6 +370,8 @@ function placeMarkersOnMap(markers) {
    // https://api.foursquare.com/v2/venues/explore?near=chicago;
 
   function getFoursquarePlaces(address) {
+
+
     var baseUrl = "https://api.foursquare.com/v2/venues/explore";
     var client_id = "5CF54NJC4GAZTBLXTT4RNIFIZ300VASS2UBFEXT5BZ5FE1UN";
     var client_secret = "RZEDR3PAPT21NWRJK3LOIDL3LRVVMGEOBI0K3JFUNY1PEAK0";
@@ -323,17 +387,21 @@ function placeMarkersOnMap(markers) {
         $foursquareElem.text("failed to get Foursquare places");
     }, 16000);
 
+// var foursquareLocations = [];
     $.ajax({
         url: foursquareUrl,
         dataType: "json",
         success: function(data) {
             // console.log(data.response.groups[0].items);
-            var latlngCoords = [];
+            // var latlngCoords = [];
+            // var foursquareLocations = [];
 
             var places = data.response.groups[0].items;
             for (var i=0; i<places.length; i++) {
 
-                latlngCoords[i] = [places[i].venue.name, places[i].venue.location.lat, places[i].venue.location.lng];
+                // latlngCoords[i] = [places[i].venue.name, places[i].venue.location.lat, places[i].venue.location.lng];
+                // foursquareLocations[places[i].venue.name] = makeMarker(new google.maps.LatLng(places[i].venue.location.lat, places[i].venue.location.lng), places[i].venue.name + "!!!!");
+                // console.log(foursquareLocations[places[i].venue.name]);
 
                 // Make another API call to get Venue details
                 // https://api.foursquare.com/v2/venues/VENUE_ID
@@ -344,7 +412,41 @@ function placeMarkersOnMap(markers) {
                   url: foursquareVenueUrl,
                   dataType: "json",
                   success: function(data) {
-                    console.log(data.response.venue);
+
+
+
+
+// function makeMarker(lat, lng, name) {
+//       console.log("makeMarker: " + name);
+//     var latlng = new google.maps.LatLng(lat,lng);
+
+//     var marker = new google.maps.Marker({
+//         position: latlng,
+//         map: map
+//     });
+
+//     google.maps.event.addListener(marker, 'click', function() {
+//         infowindow.setContent(name);
+//         infowindow.open(map, marker);
+//     });
+
+//     foursquareLocations[name] = marker;
+
+//     return marker;
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+                    // console.log(data.response.venue);
                     var venue = data.response.venue;
 
                     var name = venue.name;
@@ -361,6 +463,9 @@ function placeMarkersOnMap(markers) {
 
                     var url = venue.url;
 
+                    var lat = venue.location.lat;
+                    var lng = venue.location.lng;
+
                     // var image_o = venue.bestPhoto.prefix + "width" + venue.bestPhoto.width + venue.bestPhoto.suffix;
                     // var image = venue.bestPhoto.prefix + "width200" + venue.bestPhoto.suffix;
 
@@ -368,30 +473,34 @@ function placeMarkersOnMap(markers) {
                     var urlFSQ = venue.canonicalUrl;
 
                     // var foursquareListItem = "<li><a href=\"" + image_o + "\" target=\"_blank\"><img src=\"" + image + "\"></a><br><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "<span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
-                    var foursquareListItem = "<li><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "<span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+                    foursquarePlace = makeMarker(lat, lng, name);
+                    console.log(foursquareLocations[name]);
+
+                    //var foursquareListItem = "<li><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+                    var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+
                     $foursquareElem.append(foursquareListItem);
 
-
-
-                      // Make a call to Google API to place the marker on the map
-                    // placeMarkersOnMap(lat,lng);
-
-
-                    // var lat = venue.location.lat;
-                    // var lng = venue.location.lng;
-                    // latlngCoords.push([lat,lng,name]);
 
                   }
                 });
 
             };
             clearTimeout(foursquareRequestTimeout);
-            console.log("latlngCoords: " + latlngCoords);
-            placeMarkersOnMap(latlngCoords);
+            // console.log("latlngCoords: " + latlngCoords);
+            // placeMarkersOnMap(latlngCoords);
+            // placeMarkersOnMap(foursquareLocations);
+
+
 
         }
+
+
+
     })
+
   };
+
 
 
   //  Yelp
