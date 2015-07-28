@@ -289,10 +289,52 @@ function placeMarkersOnMap(markers) {
 
 
 
+  ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
+
+
+
+  $('#place-filter').keypress(function(e){
+    if (e.which == 13) {
+      var input = $('#place-filter').val();
+
+      console.log(input);
+      // filterPlacesList();
+var fsPlaces = $("ul#places-list li");
+
+      var fsPlaceNames = $("ul#places-list li a:first-of-type");
+      var resultPlaces = [];
+
+      for (var i = 0; i < fsPlaceNames.length; i++) {
+        var fsPlaceName = fsPlaceNames[i];
+
+        console.log(fsPlaceName.innerHTML);
+
+        if (fsPlaceName.innerHTML.toLowerCase().indexOf(input.toLowerCase()) > -1) {
+          resultPlaces.push(fsPlaceName.innerHTML);
+          console.log(">>>> match <<<<");
+        }
+      }
+      console.log(resultPlaces);
+
+      var $foursquareElem = $('#places-list');
+      $foursquareElem.text("");
+
+      for (var i=0;i<resultPlaces.length;i++) {
+        var foursquareListItem = "<li>" + resultPlaces[i] + "</li>";
+        $foursquareElem.append(foursquareListItem);
+      }
+
+
+    }
+
+  });
 
 
 
 
+  ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
 
 
 
@@ -478,6 +520,7 @@ function makeMarker(lat, lng, name) {
 
                     //var foursquareListItem = "<li><a href=\"" + urlFSQ + "\" target=\"_blank\">" + name + "</a><br>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
                     var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+// var foursquareListItem = "<li><p>" + name + "<p>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
 
                     $foursquareElem.append(foursquareListItem);
 
