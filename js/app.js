@@ -291,48 +291,53 @@ function placeMarkersOnMap(markers) {
 
   ////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
 
 
+    var fsPlaceNames = [];
 
-  $('#place-filter').keypress(function(e){
-    if (e.which == 13) {
+    $('#place-filter').keyup(function(e){
+
       var input = $('#place-filter').val();
 
-      console.log(input);
-      // filterPlacesList();
-var fsPlaces = $("ul#places-list li");
+      for (var key in foursquareLocations) {
+        if (foursquareLocations.hasOwnProperty(key))
+          console.log(">>> "+foursquareLocations[key].name);
+          var markerName = foursquareLocations[key].name;
+          if (markerName.toLowerCase().indexOf(input.toLowerCase()) < 0) {
+            deleteMarker(markerName);
+          }
+      }
 
-      var fsPlaceNames = $("ul#places-list li a:first-of-type");
+      console.log("Searching for: " + input);
+
+      fsPlaceNames = $("ul#places-list li a:first-of-type");
+
       var resultPlaces = [];
 
       for (var i = 0; i < fsPlaceNames.length; i++) {
         var fsPlaceName = fsPlaceNames[i];
-
-        console.log(fsPlaceName.innerHTML);
-
         if (fsPlaceName.innerHTML.toLowerCase().indexOf(input.toLowerCase()) > -1) {
           resultPlaces.push(fsPlaceName.innerHTML);
-          console.log(">>>> match <<<<");
+          // console.log(">>>> match <<<<");
         }
       }
-      console.log(resultPlaces);
+      // console.log(resultPlaces);
 
       var $foursquareElem = $('#places-list');
       $foursquareElem.text("");
 
       for (var i=0;i<resultPlaces.length;i++) {
-        var foursquareListItem = "<li>" + resultPlaces[i] + "</li>";
+        var foursquareListItem = "<li><a href=\"#\">" + resultPlaces[i] + "</a></li>";
         $foursquareElem.append(foursquareListItem);
       }
 
-
-    }
-
-  });
+    })
 
 
-
-
+  ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////
 
@@ -368,6 +373,7 @@ function makeMarker(lat, lng, name) {
     var latlng = new google.maps.LatLng(lat,lng);
 
     var marker = new google.maps.Marker({
+        name: name,
         position: latlng,
         map: map
     });
@@ -394,6 +400,10 @@ function makeMarker(lat, lng, name) {
     infowindow.open(map, marker);
   })
 
+function deleteMarker(name) {
+ var marker = foursquareLocations[name];
+ marker.setMap(null);
+}
 
 
   //  Foursquare
@@ -454,39 +464,6 @@ function makeMarker(lat, lng, name) {
                   url: foursquareVenueUrl,
                   dataType: "json",
                   success: function(data) {
-
-
-
-
-// function makeMarker(lat, lng, name) {
-//       console.log("makeMarker: " + name);
-//     var latlng = new google.maps.LatLng(lat,lng);
-
-//     var marker = new google.maps.Marker({
-//         position: latlng,
-//         map: map
-//     });
-
-//     google.maps.event.addListener(marker, 'click', function() {
-//         infowindow.setContent(name);
-//         infowindow.open(map, marker);
-//     });
-
-//     foursquareLocations[name] = marker;
-
-//     return marker;
-// };
-
-
-
-
-
-
-
-
-
-
-
 
                     // console.log(data.response.venue);
                     var venue = data.response.venue;
