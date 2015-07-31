@@ -303,27 +303,31 @@ function placeMarkersOnMap(markers) {
 
       for (var key in foursquareLocations) {
         if (foursquareLocations.hasOwnProperty(key))
-          console.log(">>> "+foursquareLocations[key].name);
+          // console.log(">>> "+foursquareLocations[key].name);
           var markerName = foursquareLocations[key].name;
           if (markerName.toLowerCase().indexOf(input.toLowerCase()) < 0) {
             deleteMarker(markerName);
+          } else {
+            addMarker(markerName);
           }
       }
 
-      console.log("Searching for: " + input);
+      // console.log("Searching for: " + input);
 
-      fsPlaceNames = $("ul#places-list li a:first-of-type");
+      // fsPlaceNames = $("ul#places-list li a:first-of-type");
+      fsPlaceNames = foursquareListEntries;
 
       var resultPlaces = [];
 
       for (var i = 0; i < fsPlaceNames.length; i++) {
         var fsPlaceName = fsPlaceNames[i];
-        if (fsPlaceName.innerHTML.toLowerCase().indexOf(input.toLowerCase()) > -1) {
-          resultPlaces.push(fsPlaceName.innerHTML);
-          // console.log(">>>> match <<<<");
+        // console.log(fsPlaceName);
+        // if (fsPlaceName.innerHTML.toLowerCase().indexOf(input.toLowerCase()) > -1) {
+        if (fsPlaceName.toLowerCase().indexOf(input.toLowerCase()) > -1) {
+          // resultPlaces.push(fsPlaceName.innerHTML);
+          resultPlaces.push(fsPlaceName);
         }
       }
-      // console.log(resultPlaces);
 
       var $foursquareElem = $('#places-list');
       $foursquareElem.text("");
@@ -400,8 +404,16 @@ function makeMarker(lat, lng, name) {
     infowindow.open(map, marker);
   })
 
+function addMarker(name) {
+  var marker = foursquareLocations[name];
+  console.log("add marker for: " + marker.name);
+  // var position = marker.getPosition();
+  // map.setCenter(position);
+}
+
 function deleteMarker(name) {
  var marker = foursquareLocations[name];
+ console.log("delete marker for: " + marker.name);
  marker.setMap(null);
 }
 
@@ -420,6 +432,7 @@ function deleteMarker(name) {
   // &query=sushi
 
    // https://api.foursquare.com/v2/venues/explore?near=chicago;
+var foursquareListEntries = [];
 
   function getFoursquarePlaces(address) {
 
@@ -500,7 +513,7 @@ function deleteMarker(name) {
 // var foursquareListItem = "<li><p>" + name + "<p>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
 
                     $foursquareElem.append(foursquareListItem);
-
+                    foursquareListEntries.push(foursquareListItem);
 
                   }
                 });
