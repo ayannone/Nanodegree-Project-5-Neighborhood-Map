@@ -294,6 +294,7 @@ function placeMarkersOnMap(markers) {
   ////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////
 
+    var deletedMarkers = [];
 
     var fsPlaceNames = [];
 
@@ -302,14 +303,36 @@ function placeMarkersOnMap(markers) {
       var input = $('#place-filter').val();
 
       for (var key in foursquareLocations) {
-        if (foursquareLocations.hasOwnProperty(key))
+        if (foursquareLocations.hasOwnProperty(key)) {
           // console.log(">>> "+foursquareLocations[key].name);
           var markerName = foursquareLocations[key].name;
-          if (markerName.toLowerCase().indexOf(input.toLowerCase()) < 0) {
-            deleteMarker(markerName);
-          } else {
-            addMarker(markerName);
+          if (markerName.toLowerCase().indexOf(input.toLowerCase()) < 0) { // if marker does not equal input
+              deleteMarker(markerName);
+            // // console.log("deleted marker: " + markerName);
+            deletedMarkers.push(foursquareLocations[key]);
+            // // console.log(deletedMarkers);
+          } else { // if marker equals input
+
+            // if marker is in deletedMarkers then add to map
+            for (var showMarker in deletedMarkers){
+              if (deletedMarkers.hasOwnProperty(showMarker)) {
+                var deletedMarkerName = deletedMarkers[showMarker].name;
+                if (deletedMarkerName.toLowerCase().indexOf(input.toLowerCase()) > -1 ) {
+                console.log("add marker to map: " + deletedMarkerName);
+                addMarker(deletedMarkerName);
+                // remove deletedMarker from deletedMarkers;
+                var index = deletedMarkers.indexOf(showMarker);
+                console.log(index);
+                deletedMarkers.splice(index, 1);
+                // console.log(deletedMarkers);
+
+                }
+              }
+            }
+
           }
+
+        }
       }
 
       // console.log("Searching for: " + input);
@@ -406,15 +429,27 @@ function makeMarker(lat, lng, name) {
 
 function addMarker(name) {
   var marker = foursquareLocations[name];
-  console.log("add marker for: " + marker.name);
+  console.log("add marker for: " + marker.name +" - position: "+marker.position);
   // var position = marker.getPosition();
   // map.setCenter(position);
+
+    var newMarker = new google.maps.Marker({
+        name: marker.name,
+        position: marker.position,
+        map: map
+    });
+
+    google.maps.event.addListener(newMarker, 'click', function() {
+        infowindow.setContent(newMarker.name);
+        infowindow.open(map, newMarker);
+    });
 }
 
 function deleteMarker(name) {
- var marker = foursquareLocations[name];
- console.log("delete marker for: " + marker.name);
- marker.setMap(null);
+
+  var marker = foursquareLocations[name];
+   console.log("add marker for: " + marker.name +" - position: "+marker.position);
+  marker.setMap(null);
 }
 
 
