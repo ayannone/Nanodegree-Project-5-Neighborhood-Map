@@ -295,39 +295,41 @@ function placeMarkersOnMap(markers) {
   ////////////////////////////////////////////////////////////
 
     var deletedMarkers = [];
-
     var fsPlaceNames = [];
 
-    $('#place-filter').keyup(function(e){
+    $('#place-filter').keyup(function(e) {
 
       var input = $('#place-filter').val();
 
       for (var key in foursquareLocations) {
         if (foursquareLocations.hasOwnProperty(key)) {
-          // console.log(">>> "+foursquareLocations[key].name);
-          var markerName = foursquareLocations[key].name;
+
+          var marker = foursquareLocations[key];
+          var markerName = marker.name;
+
           if (markerName.toLowerCase().indexOf(input.toLowerCase()) < 0) { // if marker does not equal input
+
+            // if marker isn't already deleted, then delete it
+            if (typeof deletedMarkers[markerName] === 'undefined') {
+              // console.log("deletedMarkers["+markerName+"]: " + deletedMarkers[markerName]);
               deleteMarker(markerName);
-            // // console.log("deleted marker: " + markerName);
-            deletedMarkers.push(foursquareLocations[key]);
-            // // console.log(deletedMarkers);
+              deletedMarkers[markerName] = marker;
+            } else {
+              // console.log("marker " + markerName + " is in 'deletedMarkers'");
+            }
           } else { // if marker equals input
 
             // if marker is in deletedMarkers then add to map
-            for (var showMarker in deletedMarkers){
-              if (deletedMarkers.hasOwnProperty(showMarker)) {
-                var deletedMarkerName = deletedMarkers[showMarker].name;
-                if (deletedMarkerName.toLowerCase().indexOf(input.toLowerCase()) > -1 ) {
-                console.log("add marker to map: " + deletedMarkerName);
-                addMarker(deletedMarkerName);
-                // remove deletedMarker from deletedMarkers;
-                var index = deletedMarkers.indexOf(showMarker);
-                console.log(index);
-                deletedMarkers.splice(index, 1);
-                // console.log(deletedMarkers);
 
-                }
-              }
+            if (typeof deletedMarkers[markerName] === 'undefined') {
+              // console.log("marker " + markerName + " is on map (not in array 'deletedMarkers')");
+            } else {
+              addMarker(markerName);
+              // remove deletedMarker from deletedMarkers;
+              console.log(deletedMarkers);
+              delete deletedMarkers[markerName];
+              console.log("deleted from array deletedMarkers: " + markerName);
+              console.log(deletedMarkers);
             }
 
           }
@@ -429,27 +431,35 @@ function makeMarker(lat, lng, name) {
 
 function addMarker(name) {
   var marker = foursquareLocations[name];
-  console.log("add marker for: " + marker.name +" - position: "+marker.position);
-  // var position = marker.getPosition();
-  // map.setCenter(position);
+  marker.setVisible(true);
+  // var marker = foursquareLocations[name];
+  // console.log("add marker for: " + marker.name +" - position: "+marker.position);
+  // // var position = marker.getPosition();
+  // // map.setCenter(position);
 
-    var newMarker = new google.maps.Marker({
-        name: marker.name,
-        position: marker.position,
-        map: map
-    });
+  //   // var newMarker = new google.maps.Marker({
+  //   new google.maps.Marker({
+  //       name: marker.name,
+  //       position: marker.position,
+  //       map: map
+  //   });
 
-    google.maps.event.addListener(newMarker, 'click', function() {
-        infowindow.setContent(newMarker.name);
-        infowindow.open(map, newMarker);
-    });
+  //   // google.maps.event.addListener(newMarker, 'click', function() {
+  //   //     infowindow.setContent(newMarker.name);
+  //   //     infowindow.open(map, newMarker);
+  //   // });
+  //   google.maps.event.addListener(marker, 'click', function() {
+  //       infowindow.setContent(marker.name);
+  //       infowindow.open(map, marker);
+  //   });
 }
 
 function deleteMarker(name) {
-
   var marker = foursquareLocations[name];
-   console.log("add marker for: " + marker.name +" - position: "+marker.position);
-  marker.setMap(null);
+  marker.setVisible(false);
+  // var marker = foursquareLocations[name];
+  // console.log("delete marker for: " + marker.name +" - position: "+marker.position);
+  // marker.setMap(null);
 }
 
 
