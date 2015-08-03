@@ -1,8 +1,4 @@
-$(function(){
-
-  // var map;
-  // var geocoder;
-  // var infowindow;
+$(function() {
 
   $('#find-me').on('click', function(e){
     showCurrentPosition();
@@ -249,7 +245,6 @@ $(function(){
 
   function getFoursquarePlaces(address) {
 
-
     var baseUrl = "https://api.foursquare.com/v2/venues/explore";
     var client_id = "5CF54NJC4GAZTBLXTT4RNIFIZ300VASS2UBFEXT5BZ5FE1UN";
     var client_secret = "RZEDR3PAPT21NWRJK3LOIDL3LRVVMGEOBI0K3JFUNY1PEAK0";
@@ -265,54 +260,52 @@ $(function(){
     }, 16000);
 
     $.ajax({
-        url: foursquareUrl,
-        dataType: "json",
-        success: function(data) {
+      url: foursquareUrl,
+      dataType: "json",
+      success: function(data) {
 
-          var places = data.response.groups[0].items;
-          for (var i=0; i<places.length; i++) {
+        var places = data.response.groups[0].items;
+        for (var i=0; i<places.length; i++) {
 
-            // Make another API call to get Venue details
-            // https://api.foursquare.com/v2/venues/VENUE_ID
-            var baseVenueUrl = "https://api.foursquare.com/v2/venues/";
-            var foursquareVenueUrl = baseVenueUrl + places[i].venue.id + "?client_id=" + client_id + "&client_secret=" + client_secret + "&v=" + version ;
+          // Make another API call to get Venue details
+          // https://api.foursquare.com/v2/venues/VENUE_ID
+          var baseVenueUrl = "https://api.foursquare.com/v2/venues/";
+          var foursquareVenueUrl = baseVenueUrl + places[i].venue.id + "?client_id=" + client_id + "&client_secret=" + client_secret + "&v=" + version ;
 
-            $.ajax({
-              url: foursquareVenueUrl,
-              dataType: "json",
-              success: function(data) {
-                var venue = data.response.venue;
-                var name = venue.name;
-                var cat_name = venue.categories[0].name;
-                var address = venue.location.address;
-                var rating = venue.rating;
-                var ratingColor = "#"+venue.ratingColor;
-                var price = "";
-                if (venue.price) {
-                  tier = venue.price.tier;
-                  currency = venue.price.currency;
-                  price = Array(tier+1).join(currency) + " ";
-                };
+          $.ajax({
+            url: foursquareVenueUrl,
+            dataType: "json",
+            success: function(data) {
+              var venue = data.response.venue;
+              var name = venue.name;
+              var cat_name = venue.categories[0].name;
+              var address = venue.location.address;
+              var rating = venue.rating;
+              var ratingColor = "#"+venue.ratingColor;
+              var price = "";
+              if (venue.price) {
+                tier = venue.price.tier;
+                currency = venue.price.currency;
+                price = Array(tier+1).join(currency) + " ";
+              };
 
-                var url = venue.url;
-                var lat = venue.location.lat;
-                var lng = venue.location.lng;
+              var url = venue.url;
+              var lat = venue.location.lat;
+              var lng = venue.location.lng;
 
-                // ------ this is the only information I need from this ajax call ------
-                var urlFSQ = venue.canonicalUrl;
-                foursquarePlace = createMarker(lat, lng, name);
+              // ------ this is the only information I need from this ajax call ------
+              var urlFSQ = venue.canonicalUrl;
+              foursquarePlace = createMarker(lat, lng, name);
 
-                var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
-                $foursquareElem.append(foursquareListItem);
-                foursquareListEntries.push(foursquareListItem);
-              }
-            });
-
-          };
-          clearTimeout(foursquareRequestTimeout);
+              var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+              $foursquareElem.append(foursquareListItem);
+              foursquareListEntries.push(foursquareListItem);
+            }
+          })
         }
+        clearTimeout(foursquareRequestTimeout);
+      }
     })
-
   };
 
 
@@ -407,11 +400,9 @@ $(function(){
           counter += 1;
 
           clearTimeout(yelpRequestTimeout);
-        });
-
+        })
       }
     })
-
   };
 
 
@@ -460,9 +451,6 @@ $(function(){
 
   function getFlickrImages(address) {
     var $flickrElem = $('#flickr-images');
-    // $flickrElem.text("");
-    // var $imgLoader = '<img id="loader" src="img/floating-rays-128.gif" alt="Image Loader" >';
-    // $flickrElem.append($imgLoader);
     var apiKey = '840f99c1773c97cda82934bbd585ba9a';
 
     var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+apiKey+"&text="+address+"&sort=relevance&per_page=20&format=json&nojsoncallback=1";
@@ -495,10 +483,7 @@ $(function(){
 
         clearTimeout(flickrRequestTimeout);
       })
-    });
-
+    })
   };
 
-
 })
-
