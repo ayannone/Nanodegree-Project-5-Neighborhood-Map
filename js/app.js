@@ -93,8 +93,8 @@ $(function() {
     var address = $('#address').val();
     showAddressOnMap(address);
     getFoursquarePlaces(address);
-    getFlickrImages(address);
-    getYelpReviews(address);
+    // getFlickrImages(address);
+    // getYelpReviews(address);
   };
 
   // geocoding address and place marker on map
@@ -103,10 +103,6 @@ $(function() {
     geocoder.geocode( {'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
         map.setCenter(results[0].geometry.location);
-        var marker = new google.maps.Marker({
-          map: map,
-          position: results[0].geometry.location
-      })
       } else {
         alert("Geocode was not successful for the following reason: " + status);
       }
@@ -246,14 +242,14 @@ $(function() {
   function getFoursquarePlaces(address) {
 
     var baseUrl = "https://api.foursquare.com/v2/venues/explore";
-    var client_id = "5CF54NJC4GAZTBLXTT4RNIFIZ300VASS2UBFEXT5BZ5FE1UN";
-    var client_secret = "RZEDR3PAPT21NWRJK3LOIDL3LRVVMGEOBI0K3JFUNY1PEAK0";
+    var clientId = "5CF54NJC4GAZTBLXTT4RNIFIZ300VASS2UBFEXT5BZ5FE1UN";
+    var clientSecret = "RZEDR3PAPT21NWRJK3LOIDL3LRVVMGEOBI0K3JFUNY1PEAK0";
     var version = '20150619';
 
     var $foursquareElem = $('#places-list');
     $foursquareElem.text("");
 
-    var foursquareUrl = baseUrl + "?client_id=" + client_id + "&client_secret=" + client_secret + "&v=" + version + "&venuePhotos=1&near=" + address;
+    var foursquareUrl = baseUrl + "?client_id=" + clientId + "&client_secret=" + clientSecret + "&v=" + version + "&venuePhotos=1&near=" + address;
 
     var foursquareRequestTimeout = setTimeout(function(){
         $foursquareElem.text("failed to get Foursquare places");
@@ -263,22 +259,26 @@ $(function() {
       url: foursquareUrl,
       dataType: "json",
       success: function(data) {
-
+console.log(data);
         var places = data.response.groups[0].items;
         for (var i=0; i<places.length; i++) {
 
           // Make another API call to get Venue details
           // https://api.foursquare.com/v2/venues/VENUE_ID
           var baseVenueUrl = "https://api.foursquare.com/v2/venues/";
-          var foursquareVenueUrl = baseVenueUrl + places[i].venue.id + "?client_id=" + client_id + "&client_secret=" + client_secret + "&v=" + version ;
+          var foursquareVenueUrl = baseVenueUrl + places[i].venue.id + "?client_id=" + clientId + "&client_secret=" + clientSecret + "&v=" + version ;
 
           $.ajax({
             url: foursquareVenueUrl,
             dataType: "json",
             success: function(data) {
+console.log(data);
               var venue = data.response.venue;
               var name = venue.name;
-              var cat_name = venue.categories[0].name;
+              var bestPhotoId = venue.bestPhoto.id;
+              // var bestPhotoUrl = venue.bestPhoto.prefix + venue.bestPhoto.height + venue.bestPhoto.suffix;
+              var bestPhotoUrl = venue.bestPhoto.prefix + "100" + venue.bestPhoto.suffix;
+              var catName = venue.categories[0].name;
               var address = venue.location.address;
               var rating = venue.rating;
               var ratingColor = "#"+venue.ratingColor;
@@ -297,7 +297,7 @@ $(function() {
               var urlFSQ = venue.canonicalUrl;
               foursquarePlace = createMarker(lat, lng, name);
 
-              var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + cat_name + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a></li>";
+              var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + catName + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a><br><img src=\""+ bestPhotoUrl +"\" /></li>";
               $foursquareElem.append(foursquareListItem);
               foursquareListEntries.push(foursquareListItem);
             }

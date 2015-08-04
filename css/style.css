@@ -42,10 +42,20 @@ body {
   padding: 5px;
 }
 
-div#map-list ul#places-list {
+/*div#map-list {*/
+#map-list {
+  height: 400px;
+}
+
+/*div#map-list ul#places-list {*/
+#places-list {
   height: 100%;
   background-color: lightgrey;
   overflow: scroll;
+}
+
+#places-list li {
+  border-bottom: 1px solid gray;
 }
 
 #info-area {
