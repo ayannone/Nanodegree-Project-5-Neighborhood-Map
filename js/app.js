@@ -129,18 +129,21 @@ $(function() {
 
   var infowindow = new google.maps.InfoWindow();
 
-  function createMarker(lat, lng, name) {
+  function createMarker(lat, lng, name, url) {
     var latlng = new google.maps.LatLng(lat,lng);
 
     var marker = new google.maps.Marker({
       name: name,
+      url: url,
       position: latlng,
       map: map
     });
 
     google.maps.event.addListener(marker, 'click', function() {
-      infowindow.setContent(name);
+      var html = name + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a>";
+      infowindow.setContent(html);
       infowindow.open(map, marker);
+      // infowindow.open(map, marker, html);
     });
 
     foursquareLocations[name] = marker;
@@ -163,8 +166,8 @@ $(function() {
     var marker = foursquareLocations[index];
     var position = marker.getPosition();
     map.setCenter(position);
-
-    infowindow.setContent(index);
+    var html = marker.name + "<br><a href=\"" + marker.url + "\" target=\"_blank\">Website</a>";
+    infowindow.setContent(html);
     infowindow.open(map, marker);
   });
 
@@ -259,7 +262,6 @@ $(function() {
       url: foursquareUrl,
       dataType: "json",
       success: function(data) {
-console.log(data);
         var places = data.response.groups[0].items;
         for (var i=0; i<places.length; i++) {
 
@@ -272,7 +274,6 @@ console.log(data);
             url: foursquareVenueUrl,
             dataType: "json",
             success: function(data) {
-console.log(data);
               var venue = data.response.venue;
               var name = venue.name;
               var bestPhotoId = venue.bestPhoto.id;
@@ -295,9 +296,10 @@ console.log(data);
 
               // ------ this is the only information I need from this ajax call ------
               var urlFSQ = venue.canonicalUrl;
-              foursquarePlace = createMarker(lat, lng, name);
+              foursquarePlace = createMarker(lat, lng, name, url);
 
-              var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + catName + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a><br><img src=\""+ bestPhotoUrl +"\" /></li>";
+              // var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + catName + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a><br><img src=\""+ bestPhotoUrl +"\" /></li>";
+              var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + catName + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><img src=\""+ bestPhotoUrl +"\" /></li>";
               $foursquareElem.append(foursquareListItem);
               foursquareListEntries.push(foursquareListItem);
             }
