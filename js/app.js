@@ -191,6 +191,7 @@ $(function() {
           }
         } else { // if marker equals input
           // if marker is in hideMarkers then show on map and delete from hideMarkers
+          console.log(markerName);
           if (typeof hideMarkers[markerName] !== 'undefined') {
             showMarker(markerName);
             delete hideMarkers[markerName];
@@ -204,7 +205,8 @@ $(function() {
 
     for (var i = 0; i < fsPlaceNames.length; i++) {
       var fsPlaceName = fsPlaceNames[i];
-      if (fsPlaceName.toLowerCase().indexOf(input.toLowerCase()) > -1) {
+      var placeName = fsPlaceName.match(/<li><a href=\"#\">(.*)<\/a><br>/).pop();
+      if (placeName.toLowerCase().indexOf(input.toLowerCase()) > -1) {
         resultPlaces.push(fsPlaceName);
       }
     }
@@ -279,6 +281,7 @@ $(function() {
               var bestPhotoId = venue.bestPhoto.id;
               // var bestPhotoUrl = venue.bestPhoto.prefix + venue.bestPhoto.height + venue.bestPhoto.suffix;
               var bestPhotoUrl = venue.bestPhoto.prefix + "100" + venue.bestPhoto.suffix;
+              var bestPhotoUrlLarge = venue.bestPhoto.prefix + venue.bestPhoto.height + venue.bestPhoto.suffix;
               var catName = venue.categories[0].name;
               var address = venue.location.address;
               var rating = venue.rating;
@@ -299,7 +302,7 @@ $(function() {
               foursquarePlace = createMarker(lat, lng, name, url);
 
               // var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + catName + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + url + "\" target=\"_blank\">Website</a><br><img src=\""+ bestPhotoUrl +"\" /></li>";
-              var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + catName + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><img src=\""+ bestPhotoUrl +"\" /></li>";
+              var foursquareListItem = "<li><a href=\"#\">" + name + "</a><br>" + catName + "</a><span style=\"background-color:" + ratingColor + ";\">" + rating + "</span><br>" + price + address + "<br><a href=\"" + bestPhotoUrlLarge + "\" target=\"_blank\"><img src=\""+ bestPhotoUrl +"\" /></li>";
               $foursquareElem.append(foursquareListItem);
               foursquareListEntries.push(foursquareListItem);
             }
