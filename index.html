@@ -8,27 +8,18 @@
     <title>Neighborhood Map Project</title>
 
     <!--  Adding Bootstrap for Responsiveness -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 
-
-        <!--  Bootstrap needs jQuery -->
+    <!--  Bootstrap needs jQuery -->
     <script src="js/lib/jquery-1.11.3.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+   <!--  // <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script> -->
+    <script src="js/lib/bootstrap/bootstrap.min.js"></script>
     <script src="js/lib/knockout-3.3.0.js"></script>
     <!-- Adding an interactive Google Map -->
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
     <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script> -->
-
-
-    <!-- Not using this at the moment -->
-    <!-- <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha1.js"></script>
-         <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha256.js"></script>
-         <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
-         <script src="js/lib/oauth-1.0a.js"></script> -->
-
-<!--     // <script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/oauth.js"></script>
-    // <script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/sha1.js"></script> -->
 
     <script src="js/lib/oauth.js"></script>
     <script src="js/lib/sha1.js"></script>
@@ -41,6 +32,7 @@
 
       <nav class="navbar navbar-default">
         <div class="container-fluid">
+
           <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -49,53 +41,40 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Brand</a>
+            <a class="navbar-brand" href="#">Neighborhood Map Project</a>
           </div>
 
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-              <li id="find-me" class="active"><a href="#">Find me</a></li>
-            <!--  <li><a href="#">Link</a></li> -->
-<!--               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Filter by <span class="caret"></span></a>
-                <ul id="filterByList" class="dropdown-menu" role="menu">
-                  <li class="filter-by" value="doctor"><a href="#">Doctors</a></li>
-                  <li class="filter-by" value="food"><a href="#">Food</a></li>
-                  <li class="filter-by" value="health"><a href="#">Health</a></li>
-                  <li class="filter-by" value="lodging"><a href="#">Lodging</a></li>
-                  <li class="filter-by" value="museum"><a href="#">Museums</a></li>
-                  <li class="filter-by" value="night_club"><a href="#">Night clubs</a></li>
-                  <li class="filter-by" value="park"><a href="#">Parks</a></li>
-                  <li class="filter-by" value="pharmacy"><a href="#">Pharmacys</a></li>
-                  <li class="filter-by" value="shopping_mall"><a href="#">Shopping malls</a></li>
-                  <li class="filter-by" value="store"><a href="#">Stores</a></li>
-                </ul>
-              </li> -->
-            </ul>
-            <!-- <form class="navbar-form navbar-left" role="search"> -->
             <div id="searchbar">
               <div class="form-group">
-                <input id="address" type="text" class="form-control pull-left" placeholder="Where do you want to go?">
+                <input id="address" data-bind="value: address, valueUpdate: 'afterkeydown', event: { keypress: searchOnEnter }" type="text" class="form-control pull-left" placeholder="Type in a city name">
               </div>
-              <button id="searchbutton" type="submit" class="btn btn-default pull-left">Search</button>
+              <button data-bind="click: getAddressAllData" class="btn btn-default pull-left">Search</button>
             </div>
-            <!-- </form> -->
-            <ul id="filters">
-              <li><input type="radio" name="filter" value="lodging"> Hotels</li>
-              <li><input type="radio" name="filter" value="restaurant"> Restaurants</li>
-              <li><input type="radio" name="filter" value="cafe"> Cafes</li>
-            </ul>
-          </div><!-- /.navbar-collapse -->
-        </div><!-- /.container-fluid -->
+            <img src="img/powered-by-foursquare.png" />
+          </div>
+
+        </div>
       </nav>
 
       <div id="main-area" class="row">
         <div id="map-canvas" class="col-sm-8"></div>
-        <div id="map-list" class="col-sm-4">
-          <input id="place-filter" type="text" class="form-control pull-left" placeholder="Filter places by names">
-          <ul id="places-list">
+        <div id="map-list" class="col-sm-4 scroll">
+
+          <input id="place-filter" data-bind="value: placeFilter, valueUpdate: 'afterkeydown', event: {keyup: filterPlaces, click: clickedPlaceFilter}" type="text" class="form-control pull-left" placeholder="Filter places by their names">
+
+          <ul data-bind="foreach: places, style: { background: 'lightgrey'}">
+            <a data-bind="attr: {href: urlFSQ}" target=\"_blank\">
+              <li data-bind="visible: shouldShowPlace, event: {mouseover: $parent.highlightMarker, mouseout: $parent.unhighlightMarker}, style: { background: isSelected() ? 'lightgrey' : 'white' }">
+                <span class="place-name" data-bind="text: name"></span> <span data-bind="text: price"></span>
+                <div>Category: <span data-bind="text: catName"></span></div>
+                <div>Rating: <span data-bind="text: rating"></span>/10 - People like this place</div>
+                <div>Address: <span data-bind="text: buildAddress()"></span></div>
+              </li>
+            </a>
           </ul>
+
         </div>
       </div>
 
@@ -104,7 +83,6 @@
       <div id="info-area" class="row">
 
         <div class="info-container col-sm-12">
-          <h3>Flickr Pictures of your location</h3>
           <div id="flickr-images">
             <!-- Bootstrap Thumbnail Slider -->
             <div class="row">
@@ -165,10 +143,6 @@
         </div>
 
         <div class="info-container col-sm-12">
-          <h3>Top Yelp Reviews for your Location</h3>
-          <!-- <ul id="yelp-reviews">
-            List of Yelp reviews here!
-          </ul> -->
           <div id="yelp-reviews">
             <!-- Bootstrap Thumbnail Slider -->
             <div class="row">
@@ -233,7 +207,7 @@
         <!-- <div class="navbar navbar-default navbar-fixed-bottom"> -->
         <div class="navbar navbar-default ">
           <div class="navbar-text">
-            &copy 2015, Created by Andrea Yannone <img src="img/icon-email.png" class="footer-logo" alt="Email Icon"> andrea.yannone1@gmail.com
+            &copy 2015, Created by Andrea Yannone
           </div>
 
           <div id="github-repo" class="pull-right">
@@ -246,7 +220,6 @@
       </footer>
 
     </div>
-
 
   </body>
 </html>

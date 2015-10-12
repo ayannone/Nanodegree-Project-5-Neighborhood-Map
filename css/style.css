@@ -1,14 +1,18 @@
  html, body {
-  max-width: 1000px;
+  /*max-width: 1000px;*/
   height: 100%;
   margin: 0 auto;
-  padding: 0px;
+  padding: 0;
 }
 
-body {
-  background-image: url("../img/bg.jpg");
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+#searchbar {
+  margin-top: -5px;
+}
+
+#address {
+  margin-right: 10px;
+  max-width: 300px;
+  background-color: lightblue;
 }
 
 #main-area {
@@ -23,39 +27,47 @@ body {
   height: 100%;
 }
 
-#searchbar {
-  margin-top: -5px;
-}
-
-#address {
-  margin-right: 10px;
-  max-width: 300px;
+#place-filter {
   background-color: lightblue;
 }
 
-#searchbutton {
-  margin-right: 10px;
-}
-
-#filters li {
-  display: inline-block;
-  padding: 5px;
-}
-
-/*div#map-list {*/
 #map-list {
   height: 400px;
 }
 
-/*div#map-list ul#places-list {*/
-#places-list {
-  height: 100%;
-  background-color: lightgrey;
+ul {
+  list-style-type: none;
+  margin-top: 45px;
+  padding-left: 0;
+}
+
+li {
+  margin: 0;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.scroll {
   overflow: scroll;
 }
 
-#places-list li {
-  border-bottom: 1px solid gray;
+.place-name {
+  font-weight: bold;
+}
+
+a:link {
+  text-decoration: none;
+}
+
+hr {
+  margin: 0;
+  margin-bottom: 5px;
+  padding: 0;
+  margin-top: 10px;
+}
+
+img {
+  padding: 5px 0;
 }
 
 #info-area {
@@ -65,35 +77,8 @@ body {
   margin: 0;
 }
 
-/********************************************/
 .info-container {
   background-color: white;
-}
-
-ul {
-  list-style-type: none;
-  /*list-style-position: inside;*/
-}
-
-#foursquare-places li {
-  display: inline-block;
-  width: 200px;
-  margin: 5px;
-  padding: 5px;
-  text-align:center;
-  border: 1px solid lightgrey;
-}
-
-#foursquare-places li img {
-  width: 100px;
-  /*height: 100px;*/
-}
-
-#foursquare-places li span {
-  width: 20px;
-  height: 20px;
-  padding: 5px;
-  border-radius: 100%;
 }
 
 .yelp-review {
@@ -123,33 +108,20 @@ ul {
 
 }
 
-/********************************************/
-/*#footerbar {
-  padding: 0 20px 5px;
-  border-top: 1px solid lightgrey;
-  max-width: 1200px;
-}*/
-
 footer {
-  height: 200px;
-  background-color: red;
-  /*margin-bottom: 0;*/
+  margin: 0;
+  padding: 0;
 }
 
-.footer-logo {
-  height: 15px;
-  margin-top: -2px;
-}
-
-
+/******************************************************/
 /************     bootstrap overrides     *************/
+/******************************************************/
 
 .container {
   /*max-width: 1200px;*/
   width: 100%;
   padding: 0;
   margin: 0;
-  /*background-color: orange;*/
 }
 
 .nav {
@@ -158,10 +130,8 @@ footer {
 
 .navbar-default {
   border-radius: 0;
-  /*background-color: orange;*/
+  background-color: orange;
 }
-
-
 
 /********************************************/
 /* Bootstrap Thumbnail Slider*/
@@ -170,15 +140,19 @@ footer {
 /* Removes the default 20px margin and creates some padding space for the indicators and controls */
 .carousel {
   margin-bottom: 0;
-  padding: 0 40px 30px 40px;
+  padding: 30px 40px 30px 40px;
+  background-color: white;
 }
+
 /* Reposition the controls slightly */
 .carousel-control {
   left: -12px;
 }
+
 .carousel-control.right {
   right: -12px;
 }
+
 /* Changes the position of the indicators */
 .carousel-indicators {
   right: 50%;
@@ -186,17 +160,17 @@ footer {
   bottom: 0px;
   margin-right: -19px;
 }
+
 /* Changes the colour of the indicators */
 .carousel-indicators li {
   background: #c0c0c0;
 }
+
 .carousel-indicators .active {
-background: #333333;
+  background: #333333;
 }
 
 .thumbnail {
   height: 150px;
   overflow: hidden;
 }
-
-/********************************************/
