@@ -229,7 +229,7 @@ $(function() {
       var foursquareUrl = baseUrl + "?client_id=" + clientId + "&client_secret=" + clientSecret + "&v=" + version + "&venuePhotos=1&near=" + vm.address();
 
       var foursquareRequestTimeout = setTimeout(function(){
-             places.push("failed to get Foursquare places");
+             vm.places.push("failed to get Foursquare places");
       }, 16000);
 
       $.ajax({

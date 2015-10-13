@@ -23,16 +23,12 @@
   background-color: white;
 }
 
-#map-canvas {
+#map-canvas, #map-list {
   height: 100%;
 }
 
 #place-filter {
   background-color: lightblue;
-}
-
-#map-list {
-  height: 400px;
 }
 
 ul {
