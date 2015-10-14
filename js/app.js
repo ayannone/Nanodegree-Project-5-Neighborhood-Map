@@ -1,5 +1,13 @@
 $(function() {
 
+  $('.your-class').slick({
+    autoplay: true,
+    // adaptiveHeight: true,
+    // slidesPerRow: 3,
+    variableWidth: true
+  });
+
+
   var defaultAddress = "Hamburg";
 
   function initialize(e) {
@@ -285,6 +293,9 @@ $(function() {
                 createMarker(that.Place.lat, that.Place.lng, that.Place.name, that.Place.url);
 
                 vm.places.push(that.Place);
+              },
+              error: function(response) {
+                console.log('error:', response);
               }
             })  // end inner ajax
           } // end for
@@ -422,6 +433,9 @@ $(function() {
 
             clearTimeout(yelpRequestTimeout);
           })
+        },
+        error: function(response) {
+          console.log('error:', response);
         }
       })
     } // end function getYelpReviews
