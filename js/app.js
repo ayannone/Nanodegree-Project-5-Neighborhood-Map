@@ -1,18 +1,14 @@
 $(function() {
 
-  $('.your-class').slick({
-    autoplay: true,
-    // adaptiveHeight: true,
-    // slidesPerRow: 3,
-    variableWidth: true
-  });
-
-
   var defaultAddress = "Hamburg";
 
   function initialize(e) {
     e.preventDefault;
     vm.getAddressAllData(e);
+    $('.slick-images-slider').slick({
+      autoplay: true,
+      variableWidth: true
+    });
   };
 
   google.maps.event.addDomListener(window, 'load', initialize);
