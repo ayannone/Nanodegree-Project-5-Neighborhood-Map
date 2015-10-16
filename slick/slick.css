@@ -78,13 +78,20 @@
 {
     display: none;
     float: left;
-
     /*height: 100%;*/
-    min-height: 1px;
-
-    width: 150px;
-    padding: 5px;
+    /*min-height: 1px;*/
 }
+
+.slick-images-slider {
+    margin: 5px;
+}
+
+.slick-images-slider img {
+    /*width: 150px;*/
+    height: 150px;
+    overflow: hidden;
+}
+
 [dir='rtl'] .slick-slide
 {
     float: right;
