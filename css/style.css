@@ -82,8 +82,12 @@ img {
   width: 200px;
   margin: 10px;
   padding: 5px;
-  text-align:center;
+  text-align: center;
   border: 1px solid lightgrey;
+}
+
+.yelp-review img {
+  margin: 0 auto;
 }
 
 .img-container {
