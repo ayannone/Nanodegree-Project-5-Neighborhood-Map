@@ -12,10 +12,20 @@ $(function() {
       infinite: true,
       // speed: 300,
       // slidesToShow: 5,
-      // slidesToScroll: 3,
-      // centerMode: true,
+      slidesToScroll: 1,
       autoplay: true,
-      autoplaySpeed: 2000,
+      autoplaySpeed: 1500,
+      variableWidth: true
+    });
+    // Initialising Slick Reviews Carousel Slider
+    $('.slick-reviews-slider').slick({
+      // dots: true,
+      infinite: true,
+      // speed: 300,
+      // slidesToShow: 5,
+      slidesToScroll: 3,
+      autoplay: true,
+      autoplaySpeed: 5000,
       variableWidth: true
     })
   };
@@ -178,12 +188,40 @@ $(function() {
   };
 
 
+  // Model - Review construction
+  var YelpReview = function() {
+    var that = this;
+
+    that.imageUrl = "";     // business.image_url
+    that.name = "";         // business.name
+    that.rating = "";       // business.rating
+    that.ratingImgUrl = ""; // business.rating_img_url
+    that.reviewCount = "";  // business.review_count
+    that.url = "";          // business.url
+
+    that.buildReview = function() {
+      var yelpReview = "";
+      yelpReview += '<div class="yelp-review">';
+      yelpReview += "<img src=\""+ that.imageUrl + "\"><br>";
+      yelpReview += "<p style=\"height:20px;overflow:hidden;\">" + that.name + "</p>";
+      yelpReview += "Rating: " + that.rating + "<br>";
+      yelpReview += "<img src=\""+ that.ratingImgUrl + "\"><br>";
+      yelpReview += "Reviews: " + that.reviewCount + "<br>";
+      yelpReview += "<a href=\"" + that.url + "\" target=\"_blank\">read more on Yelp</a><br>";
+      yelpReview += "</div>";
+      return yelpReview;
+    }
+
+  };
+
+
   // ViewModel
   vm = {
     address: ko.observable(defaultAddress),
     placeFilter: ko.observable([]),
     places: ko.observableArray([]),
     flickrImages: ko.observableArray([]),
+    yelpReviews: ko.observableArray([]),
 
     highlightMarker: function(place) {
       this.isSelected(true);
@@ -368,10 +406,20 @@ $(function() {
       })
     }, // end function getFlickrImages
 
+    getYelpBusinessReview: function() {
+      // not implemented yet
+    },
+
     getYelpReviews: function() {
 
-      var $yelpElem = $('#yelp-reviews');
-      // $yelpElem.text("");
+      var yelpReviewsUnderlyingArray = vm.yelpReviews();
+      if (yelpReviewsUnderlyingArray.length > 0) {
+        while (yelpReviewsUnderlyingArray.length > 0) {
+          $('.slick-reviews-slider').slick('slickRemove', yelpReviewsUnderlyingArray.length - 1);
+          yelpReviewsUnderlyingArray.shift();
+        }
+        vm.yelpReviews.valueHasMutated();
+      }
 
       var yelpRequestTimeout = setTimeout(function(){
           $yelpElem.text("failed to get Yelp Reviews");
@@ -425,34 +473,19 @@ $(function() {
         dataType: 'jsonp',
         jsonpCallback: 'cb',
         success: function(data) {
-          var $carouselInner = $('yelpCarousel .carousel-inner');
-          var divider = 4; // 4 images per row
-          var counter = 0;
-          var $carouselItemRow;
+          $.each(data.businesses,function(i, business) {
 
-          $.each(data.businesses,function(i,business){
+            var that = this;
+            that.YelpReview = new YelpReview();
 
-            if (counter % divider == 0) {
-              var rowNum = counter / divider;
-              $carouselItemRow = $('#yelpCarouselRow'+rowNum);
-              $carouselItemRow.text("");
-            };
+            that.YelpReview.imageUrl = business.image_url;
+            that.YelpReview.name = business.name;
+            that.YelpReview.rating = business.rating;
+            that.YelpReview.ratingImgUrl = business.rating_img_url;
+            that.YelpReview.reviewCount = business.review_count;
+            that.YelpReview.url = business.url;
 
-            var yelp_info = "";
-            yelp_info += '<div class="yelp-review">';
-            yelp_info += "<img src=\""+ business.image_url + "\"><br>";
-            yelp_info += "<p style=\"height:20px;overflow:hidden;\">" + business.name + "</p>";
-            yelp_info += "Rating: " + business.rating + "<br>";
-            yelp_info += "<img src=\""+ business.rating_img_url + "\"><br>";
-            yelp_info += "Reviews: " + business.review_count + "<br>";
-            // yelp_info += "Address: " + business.location.city + "<br>";
-            // yelp_info += "Address: " + business.location.display_address + "<br>";
-            yelp_info += "<a href=\"" + business.url + "\" target=\"_blank\">read more on Yelp</a><br>";
-            yelp_info += "</div>";
-
-            $carouselItemRow.append(yelp_info);
-
-            counter += 1;
+            yelpReviewsUnderlyingArray.push(that.YelpReview);
 
             clearTimeout(yelpRequestTimeout);
           })
@@ -460,7 +493,14 @@ $(function() {
         error: function(response) {
           console.log('error:', response);
         }
+      }).done(function() {
+        vm.yelpReviews.valueHasMutated();
+
+        vm.yelpReviews().forEach(function(entry){
+          $('.slick-reviews-slider').slick('slickAdd', entry.buildReview());
+        })
       })
+
     } // end function getYelpReviews
 
   } // end viewModel vm
