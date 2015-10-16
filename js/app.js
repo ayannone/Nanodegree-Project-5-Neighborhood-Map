@@ -1,18 +1,23 @@
 $(function() {
 
-  $('.your-class').slick({
-    autoplay: true,
-    // adaptiveHeight: true,
-    // slidesPerRow: 3,
-    variableWidth: true
-  });
-
-
   var defaultAddress = "Hamburg";
 
   function initialize(e) {
     e.preventDefault;
     vm.getAddressAllData(e);
+
+    // Initialising Slick Images Carousel Slider
+    $('.slick-images-slider').slick({
+      // dots: true,
+      infinite: true,
+      // speed: 300,
+      // slidesToShow: 5,
+      // slidesToScroll: 3,
+      // centerMode: true,
+      autoplay: true,
+      autoplaySpeed: 2000,
+      variableWidth: true
+    })
   };
 
   google.maps.event.addDomListener(window, 'load', initialize);
@@ -33,10 +38,6 @@ $(function() {
 
   ////////////////////////////////////////////////////////////
   //////// Bootstrap Thumbnail Slider
-
-  $('#flickrCarousel').carousel({
-    interval: 10000
-  });
 
   $('#yelpCarousel').carousel({
     interval: 10000
@@ -163,12 +164,26 @@ $(function() {
 
   };
 
+  // Model - Image construction
+  var FlickrImage = function() {
+    var that = this;
+
+    that.title = "";
+    that.url_b = "";
+    that.url_m = "";
+
+    that.buildImage = function() {
+      return '<a href="' + that.url_b + '" target="_blank"><img src="' + that.url_m + '" alt="' + that.title + '"></a></div>';
+    }
+  };
+
 
   // ViewModel
   vm = {
     address: ko.observable(defaultAddress),
     placeFilter: ko.observable([]),
     places: ko.observableArray([]),
+    flickrImages: ko.observableArray([]),
 
     highlightMarker: function(place) {
       this.isSelected(true);
@@ -309,41 +324,49 @@ $(function() {
     }, // end function getFoursquarePlaces
 
     getFlickrImages: function() {
-      var $flickrElem = $('#flickr-images');
+
+      var flickrImagesUnderlyingArray = vm.flickrImages();
+      if (flickrImagesUnderlyingArray.length > 0) {
+        while (flickrImagesUnderlyingArray.length > 0) {
+          $('.slick-images-slider').slick('slickRemove', flickrImagesUnderlyingArray.length - 1);
+          flickrImagesUnderlyingArray.shift();
+        }
+        vm.flickrImages.valueHasMutated();
+      }
+
       var apiKey = '840f99c1773c97cda82934bbd585ba9a';
 
-      var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+apiKey+"&text="+vm.address()+"&sort=relevance&per_page=20&format=json&nojsoncallback=1";
-      var flickrRequestTimeout = setTimeout(function(){
-          $flickrElem.text("failed to get Flickr images");
-      }, 8000);
+      var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+apiKey+"&text="+vm.address()+"&sort=relevance&per_page=40&format=json&nojsoncallback=1";
+      // var flickrRequestTimeout = setTimeout(function(){
+      //     $flickrElem.text("failed to get Flickr images");
+      // }, 8000);
 
       $.getJSON(flickrUrl, function(json) {
-        var $carouselInner = $('flickrCarousel .carousel-inner');
-        var photosNum = json.photos.photo.length; // retrieving 20 images per page, 1 page
-        var divider = 4; // 4 images per row
-        var counter = 0;
-        var $carouselItemRow;
+        // retrieving 40 images
+        $.when(
+          $.each(json.photos.photo,function(i,myresult) {
 
-        $.each(json.photos.photo,function(i,myresult) {
+            var that = this;
+            that.FlickrImage = new FlickrImage();
 
-          if (counter % divider == 0) {
-            var rowNum = counter / divider;
-            $carouselItemRow = $('#flickrCarouselRow'+rowNum);
-            $carouselItemRow.text("");
-          };
+            that.FlickrImage.title = myresult.title;
+            that.FlickrImage.url_b = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_b.jpg';
+            that.FlickrImage.url_m = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_m.jpg';
 
-          var url_b   = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_b.jpg';
-          var url_m = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_m.jpg';
+            flickrImagesUnderlyingArray.push(that.FlickrImage);
+            // clearTimeout(flickrRequestTimeout);
+          })
 
-          var $carouselItemRowImage = '<div class="col-sm-3"><a href="'+url_b+'" target="_blank" class="thumbnail"><img src="'+url_m+'" alt="' + myresult.title + '" style="max-width:100%;"></a></div>';
-          $carouselItemRow.append($carouselItemRowImage);
+        ).done(function() {
+          vm.flickrImages.valueHasMutated();
 
-          counter += 1;
+          vm.flickrImages().forEach(function(entry){
+            $('.slick-images-slider').slick('slickAdd', entry.buildImage());
+          })
 
-          clearTimeout(flickrRequestTimeout);
         })
       })
-    }, // end function getFlickImages
+    }, // end function getFlickrImages
 
     getYelpReviews: function() {
 
