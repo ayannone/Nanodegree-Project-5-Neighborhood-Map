@@ -6,23 +6,17 @@ $(function() {
     e.preventDefault;
     vm.getAddressAllData(e);
 
-    // Initialising Slick Images Carousel Slider
+    // Initialize Slick Images Carousel Slider
     $('.slick-images-slider').slick({
-      // dots: true,
       infinite: true,
-      // speed: 300,
-      // slidesToShow: 5,
       slidesToScroll: 1,
       autoplay: true,
       autoplaySpeed: 1500,
       variableWidth: true
     });
-    // Initialising Slick Reviews Carousel Slider
+    // Initialize Slick Reviews Carousel Slider
     $('.slick-reviews-slider').slick({
-      // dots: true,
       infinite: true,
-      // speed: 300,
-      // slidesToShow: 5,
       slidesToScroll: 1,
       autoplay: true,
       autoplaySpeed: 5000,
@@ -45,13 +39,6 @@ $(function() {
       }
     })
   };
-
-  ////////////////////////////////////////////////////////////
-  //////// Bootstrap Thumbnail Slider
-
-  $('#yelpCarousel').carousel({
-    interval: 10000
-  });
 
   ////////////////////////////////////////////////////////////
   //////// Google maps
@@ -126,7 +113,6 @@ $(function() {
   ////////////////////////////////////////////////////////////
   //////// Knockout.js
 
-
   // Model - Place construction
   var Place = function() {
     var that = this;
@@ -171,7 +157,6 @@ $(function() {
       infoWindowContent += "<a href=\"" + that.url + "\" target=\"_blank\">Website</a>";
       return infoWindowContent;
     }
-
   };
 
   // Model - Image construction
@@ -187,17 +172,16 @@ $(function() {
     }
   };
 
-
   // Model - Review construction
   var YelpReview = function() {
     var that = this;
 
-    that.imageUrl = "";     // business.image_url
-    that.name = "";         // business.name
-    that.rating = "";       // business.rating
-    that.ratingImgUrl = ""; // business.rating_img_url
-    that.reviewCount = "";  // business.review_count
-    that.url = "";          // business.url
+    that.imageUrl = "";
+    that.name = "";
+    that.rating = "";
+    that.ratingImgUrl = "";
+    that.reviewCount = "";
+    that.url = "";
 
     that.buildReview = function() {
       var yelpReview = "";
@@ -211,9 +195,7 @@ $(function() {
       yelpReview += "</div>";
       return yelpReview;
     }
-
   };
-
 
   // ViewModel
   vm = {
@@ -222,6 +204,11 @@ $(function() {
     places: ko.observableArray([]),
     flickrImages: ko.observableArray([]),
     yelpReviews: ko.observableArray([]),
+
+    shouldShowList: ko.observable(true),
+    shouldShowListError: ko.observable(false),
+    shouldShowImagesSlider: ko.observable(true),
+    shouldShowReviewSlider: ko.observable(true),
 
     highlightMarker: function(place) {
       this.isSelected(true);
@@ -289,15 +276,10 @@ $(function() {
 
       var foursquareUrl = baseUrl + "?client_id=" + clientId + "&client_secret=" + clientSecret + "&v=" + version + "&venuePhotos=1&near=" + vm.address();
 
-      var foursquareRequestTimeout = setTimeout(function(){
-             vm.places.push("failed to get Foursquare places");
-      }, 16000);
-
       $.ajax({
         url: foursquareUrl,
         dataType: "json",
         success: function(data) {
-
           var fsqPlaces = data.response.groups[0].items;
           for (var i=0; i<fsqPlaces.length; i++) {
 
@@ -307,7 +289,6 @@ $(function() {
             var foursquareVenueUrl = baseVenueUrl + fsqPlaces[i].venue.id + "?client_id=" + clientId + "&client_secret=" + clientSecret + "&v=" + version ;
 
             $.ajax({
-
               url: foursquareVenueUrl,
               dataType: "json",
               success: function(data) {
@@ -326,7 +307,7 @@ $(function() {
                 that.Place.state = venue.location.state;
                 that.Place.postalCode = venue.location.postalCode;
                 that.Place.country = venue.location.country;
-                that.Place.rating = venue.rating;
+                that.Place.rating = venue.rating ? venue.rating : "-";
                 that.Place.ratingColor = "#"+venue.ratingColor;
                 that.Place.description = venue.description;
                 that.Place.price = "";
@@ -341,7 +322,7 @@ $(function() {
                 that.Place.lng = venue.location.lng;
 
                 // ------ this is the only information I need from this ajax call ------
-                that.Place.urlFSQ = venue.canonicalUrl;
+                that.Place.urlFSQ = venue.canonicalUrl ? venue.canonicalUrl : "";
 
                 createMarker(that.Place.lat, that.Place.lng, that.Place.name, that.Place.url);
 
@@ -350,13 +331,16 @@ $(function() {
               error: function(response) {
                 console.log('error:', response);
               }
-            })  // end inner ajax
+            }) // end inner ajax
           } // end for
 
-          clearTimeout(foursquareRequestTimeout);
-
-        } // end success
-
+        }, // end success
+        error: function(response) {
+          vm.shouldShowList(false);
+          vm.shouldShowListError(true);
+          $('#place-error').text('Failed to get Foursquare places: ' + response.statusText + ' (Status Code: ' + response.status + ')');
+          console.log('error: ', response);
+        }
       }) // end outer ajax
 
     }, // end function getFoursquarePlaces
@@ -374,41 +358,41 @@ $(function() {
 
       var apiKey = '840f99c1773c97cda82934bbd585ba9a';
 
-      var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+apiKey+"&text="+vm.address()+"&sort=relevance&per_page=40&format=json&nojsoncallback=1";
-      // var flickrRequestTimeout = setTimeout(function(){
-      //     $flickrElem.text("failed to get Flickr images");
-      // }, 8000);
+      // retrieving 40 images
+      var numImages = 40;
+
+      var flickrUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+apiKey+"&text="+vm.address()+"&sort=relevance&per_page="+numImages+"&format=json&nojsoncallback=1";
 
       $.getJSON(flickrUrl, function(json) {
-        // retrieving 40 images
-        $.when(
-          $.each(json.photos.photo,function(i,myresult) {
 
-            var that = this;
-            that.FlickrImage = new FlickrImage();
+        if (json.stat == 'ok') {
+          $.when(
+            $.each(json.photos.photo,function(i,myresult) {
 
-            that.FlickrImage.title = myresult.title;
-            that.FlickrImage.url_b = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_b.jpg';
-            that.FlickrImage.url_m = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_m.jpg';
+              var that = this;
+              that.FlickrImage = new FlickrImage();
 
-            flickrImagesUnderlyingArray.push(that.FlickrImage);
-            // clearTimeout(flickrRequestTimeout);
+              that.FlickrImage.title = myresult.title;
+              that.FlickrImage.url_b = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_b.jpg';
+              that.FlickrImage.url_m = 'http://farm' + myresult.farm + '.static.flickr.com/' + myresult.server + '/' + myresult.id + '_' + myresult.secret + '_m.jpg';
+
+              flickrImagesUnderlyingArray.push(that.FlickrImage);
+            })
+          )
+          .done(function() {
+            vm.flickrImages.valueHasMutated();
+
+            vm.flickrImages().forEach(function(entry){
+              $('.slick-images-slider').slick('slickAdd', entry.buildImage());
+            })
           })
+        } else {
+          vm.shouldShowImagesSlider(false);
+          console.log('error: ', json);
+        }
 
-        ).done(function() {
-          vm.flickrImages.valueHasMutated();
-
-          vm.flickrImages().forEach(function(entry){
-            $('.slick-images-slider').slick('slickAdd', entry.buildImage());
-          })
-
-        })
       })
     }, // end function getFlickrImages
-
-    getYelpBusinessReview: function() {
-      // not implemented yet
-    },
 
     getYelpReviews: function() {
 
@@ -421,15 +405,7 @@ $(function() {
         vm.yelpReviews.valueHasMutated();
       }
 
-      var yelpRequestTimeout = setTimeout(function(){
-          $yelpElem.text("failed to get Yelp Reviews");
-      }, 8000);
-
-
       var auth = {
-        //
-        // Update with your auth tokens !!!
-        //
         consumerKey: "6elNSWaVZM9nC76VherCWA",
         consumerSecret: "HfSD_E8RG-FGJb6Z2zJJdsCnYXo",
         accessToken: "sYRyIBg8DOU7iID93eLUhLtEjS8J1WpJ",
@@ -478,7 +454,7 @@ $(function() {
             var that = this;
             that.YelpReview = new YelpReview();
 
-            that.YelpReview.imageUrl = business.image_url;
+            that.YelpReview.imageUrl = business.image_url ? business.image_url : "img/placeholder.jpg";
             that.YelpReview.name = business.name;
             that.YelpReview.rating = business.rating;
             that.YelpReview.ratingImgUrl = business.rating_img_url;
@@ -486,12 +462,11 @@ $(function() {
             that.YelpReview.url = business.url;
 
             yelpReviewsUnderlyingArray.push(that.YelpReview);
-
-            clearTimeout(yelpRequestTimeout);
           })
         },
         error: function(response) {
-          console.log('error:', response);
+          vm.shouldShowReviewSlider(false);
+          console.log('error: ', response);
         }
       }).done(function() {
         vm.yelpReviews.valueHasMutated();

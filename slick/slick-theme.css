@@ -69,7 +69,8 @@
     line-height: 1;
 
     opacity: .75;
-    color: white;
+    /*color: white;*/
+    color: lightgrey;
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

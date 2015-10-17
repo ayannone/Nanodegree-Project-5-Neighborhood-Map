@@ -67,8 +67,8 @@
         <div id="map-list" class="col-xs-12 col-sm-4 scroll">
 
           <input id="place-filter" data-bind="value: placeFilter, valueUpdate: 'afterkeydown', event: {keyup: filterPlaces, click: clickedPlaceFilter}" type="text" class="form-control pull-left" placeholder="Filter places by their names">
-
-          <ul data-bind="foreach: places, style: { background: 'lightgrey'}">
+          <div id="place-error" data-bind="visible: shouldShowListError"></div>
+          <ul data-bind="visible: shouldShowList, foreach: places, style: { background: 'lightgrey'}">
             <a data-bind="attr: {href: urlFSQ}" target=\"_blank\">
               <li data-bind="visible: shouldShowPlace, event: {mouseover: $parent.highlightMarker, mouseout: $parent.unhighlightMarker}, style: { background: isSelected() ? 'lightgrey' : 'white' }">
                 <span class="place-name" data-bind="text: name"></span> <span data-bind="text: price"></span>
@@ -83,10 +83,10 @@
 
       <div class="clearfix"></div>
 
-      <div class="slick-images-slider">
+      <div data-bind="visible: shouldShowImagesSlider" class="slick-images-slider">
       </div>
 
-      <div class="slick-reviews-slider">
+      <div data-bind="visible: shouldShowReviewSlider" class="slick-reviews-slider">
       </div>
 
       <footer>
