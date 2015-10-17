@@ -23,7 +23,7 @@ $(function() {
       infinite: true,
       // speed: 300,
       // slidesToShow: 5,
-      slidesToScroll: 3,
+      slidesToScroll: 1,
       autoplay: true,
       autoplaySpeed: 5000,
       variableWidth: true
