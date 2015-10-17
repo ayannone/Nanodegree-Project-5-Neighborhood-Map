@@ -1,9 +1,7 @@
  html, body {
-  /*max-width: 1000px;*/
   height: 100%;
   margin: 0 auto;
   padding: 0;
-  /*background-color: #CCFFFF;*/
 }
 
 #searchbar {
