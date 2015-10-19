@@ -77,6 +77,13 @@ $(function() {
       })
     });
 
+    google.maps.event.addListener(marker, 'click', function() {
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+      setTimeout(function(){
+         marker.setAnimation(null);
+      }, 2150);
+    });
+
     foursquareLocations[name] = marker;
     return marker;
   };
