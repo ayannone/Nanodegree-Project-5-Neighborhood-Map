@@ -1,6 +1,6 @@
 $(function() {
 
-  var defaultAddress = "Hamburg";
+  var defaultAddress = "Hamburg, Germany";
 
   function initialize(e) {
     e.preventDefault;
@@ -75,13 +75,12 @@ $(function() {
           openInfoWindow(place, marker);
         }
       })
-    });
 
-    google.maps.event.addListener(marker, 'click', function() {
       marker.setAnimation(google.maps.Animation.BOUNCE);
       setTimeout(function(){
          marker.setAnimation(null);
       }, 2150);
+
     });
 
     foursquareLocations[name] = marker;
